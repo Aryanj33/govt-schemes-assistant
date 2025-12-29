@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # LiveKit Server (Self-hosted option)
+  livekit:
+    image: livekit/livekit-server:latest
+    command: --config /etc/livekit.yaml
+    restart: unless-stopped
+    ports:
+      - "7880:7880"   # HTTP port
+      - "7881:7881"   # RTC over TCP
+      - "7882:7882"   # TURN/TLS
+      - "50000-50200:50000-50200/udp"  # WebRTC UDP ports
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml
+    networks:
+      - scholarship-network
+
+  # Redis for LiveKit state management
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - scholarship-network
+
+networks:
+  scholarship-network:
+    driver: bridge

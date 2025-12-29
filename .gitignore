@@ -1,0 +1,50 @@
+# Environment
+.env
+*.env
+config/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data
+data/raw/
+data/embeddings/faiss_index/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Temporary
+*.tmp
+*.temp
+.cache/
+
+# API Keys (never commit)
+**/credentials.json
+**/service-account*.json

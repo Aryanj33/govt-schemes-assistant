@@ -1,0 +1,45 @@
+# ============================================
+# Scholarship Voice Assistant - Dependencies
+# ============================================
+
+# LiveKit Agents Framework
+livekit>=0.11.0
+livekit-agents>=0.8.0
+livekit-plugins-silero>=0.6.0
+
+# Speech-to-Text (Groq Whisper)
+groq>=0.4.0
+
+# Text-to-Speech
+google-cloud-texttospeech>=2.14.0
+httpx>=0.25.0  # For Bhashini API calls
+
+# LLM
+google-generativeai>=0.3.0  # Gemini fallback
+
+# RAG & Embeddings
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+numpy>=1.24.0
+
+# Data Processing
+beautifulsoup4>=4.12.0
+requests>=2.31.0
+lxml>=4.9.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+aiohttp>=3.9.0
+aiofiles>=23.2.0
+
+# Audio Processing
+soundfile>=0.12.0
+pydub>=0.25.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Logging
+colorlog>=6.7.0

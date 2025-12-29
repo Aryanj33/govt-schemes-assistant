@@ -1,0 +1,28 @@
+# LiveKit Server Configuration
+# For self-hosted deployment
+
+port: 7880
+rtc:
+  port_range_start: 50000
+  port_range_end: 50200
+  tcp_port: 7881
+  use_external_ip: true
+
+redis:
+  address: redis:6379
+
+keys:
+  # IMPORTANT: Generate your own keys for production!
+  # Use: openssl rand -base64 32
+  APIKey: devkey  # Replace with your actual API key
+  # API Secret will be: secret (replace in production)
+
+logging:
+  level: info
+  json: false
+
+turn:
+  enabled: true
+  domain: localhost
+  tls_port: 7882
+  udp_port: 7882

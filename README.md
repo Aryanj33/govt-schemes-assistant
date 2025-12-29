@@ -121,14 +121,4 @@ See [DEMO.md](docs/DEMO.md) for:
 - Failure recovery strategies
 - Q&A preparation
 
-## 📜 License
 
-MIT License - Free to use and modify.
-
-## 👥 Team
-
-Built with ❤️ for Indian Students at Hackathon 2025
-
----
-
-**🌟 Star this repo if it helped you find a scholarship!**

@@ -35,9 +35,9 @@ class GroqConfig:
     """Groq API configuration for Whisper STT and Llama LLM."""
     api_key: str = field(default_factory=lambda: os.getenv("GROQ_API_KEY", ""))
     whisper_model: str = "whisper-large-v3-turbo"
-    llm_model: str = "llama-3.3-70b-versatile"
+    llm_model: str = "llama-3.1-8b-instant"  # Faster 8B model for lower latency
     llm_temperature: float = 0.7
-    llm_max_tokens: int = 256  # Keep responses short for voice
+    llm_max_tokens: int = 150  # Ultra-short responses for speed
     
     def is_configured(self) -> bool:
         return bool(self.api_key)
@@ -54,6 +54,16 @@ class LiveKitConfig:
         return bool(self.url and self.api_key and self.api_secret)
 
 @dataclass
+class TwilioConfig:
+    """Twilio telephony configuration."""
+    account_sid: str = field(default_factory=lambda: os.getenv("TWILIO_ACCOUNT_SID", ""))
+    auth_token: str = field(default_factory=lambda: os.getenv("TWILIO_AUTH_TOKEN", ""))
+    phone_number: str = field(default_factory=lambda: os.getenv("TWILIO_PHONE_NUMBER", ""))
+    
+    def is_configured(self) -> bool:
+        return bool(self.account_sid and self.auth_token and self.phone_number)
+
+@dataclass
 class BhashiniConfig:
     """Bhashini TTS API configuration."""
     user_id: str = field(default_factory=lambda: os.getenv("BHASHINI_USER_ID", ""))
@@ -63,6 +73,17 @@ class BhashiniConfig:
     
     def is_configured(self) -> bool:
         return bool(self.user_id and self.api_key)
+
+@dataclass
+class EdgeTTSConfig:
+    """Edge TTS configuration (Free high-quality neural voices)."""
+    voice_hindi: str = "hi-IN-SwaraNeural"  # Excellent female Hindi voice
+    voice_english: str = "en-IN-NeerjaNeural"  # Excellent Indian English voice
+    rate: str = "+0%"  # Speed adjustment
+    pitch: str = "+0Hz"  # Pitch adjustment
+    
+    def is_configured(self) -> bool:
+        return True  # Always available as it's free/public
 
 @dataclass
 class GoogleConfig:
@@ -94,7 +115,7 @@ class DataConfig:
                   str(Path(__file__).parent.parent.parent / "data" / "embeddings" / "faiss_index"))
     ))
     embedding_model: str = "all-MiniLM-L6-v2"
-    top_k_results: int = 5
+    top_k_results: int = 2  # Minimal context for max speed
     
     def ensure_directories(self):
         """Create data directories if they don't exist."""
@@ -111,7 +132,9 @@ class AppConfig:
     # Sub-configurations
     groq: GroqConfig = field(default_factory=GroqConfig)
     livekit: LiveKitConfig = field(default_factory=LiveKitConfig)
+    twilio: TwilioConfig = field(default_factory=TwilioConfig)
     bhashini: BhashiniConfig = field(default_factory=BhashiniConfig)
+    edge_tts: EdgeTTSConfig = field(default_factory=EdgeTTSConfig)
     google: GoogleConfig = field(default_factory=GoogleConfig)
     data: DataConfig = field(default_factory=DataConfig)
     
@@ -152,6 +175,7 @@ class AppConfig:
         print()
         print(f"🎤 Groq STT/LLM: {'✅ Configured' if self.groq.is_configured() else '❌ Not configured'}")
         print(f"🔊 LiveKit: {'✅ Configured' if self.livekit.is_configured() else '❌ Not configured'}")
+        print(f"📞 Twilio Phone: {'✅ Configured' if self.twilio.is_configured() else '❌ Not configured'}")
         print(f"🗣️  Bhashini TTS: {'✅ Configured' if self.bhashini.is_configured() else '❌ Not configured'}")
         print(f"☁️  Google TTS: {'✅ Configured' if self.google.is_tts_configured() else '❌ Not configured'}")
         print(f"🤖 Gemini LLM: {'✅ Configured' if self.google.is_gemini_configured() else '❌ Not configured'}")

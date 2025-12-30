@@ -11,6 +11,7 @@ livekit-plugins-silero>=0.6.0
 groq>=0.4.0
 
 # Text-to-Speech
+edge-tts>=6.1.9
 google-cloud-texttospeech>=2.14.0
 httpx>=0.25.0  # For Bhashini API calls
 

@@ -196,19 +196,43 @@ class ScholarshipRAG:
                 required_cat = filters['category'].lower()
                 # Skip if general
                 if required_cat not in ['general', 'open']:
-                    if required_cat not in searchable_text:
-                        include = False
+                    # Check if scheme has category requirements
+                    scheme_cats = str(item.get('category', '')).lower()
+                    
+                    # If scheme is for specific categories and doesn't mention ours, exclude it
+                    # (This is a simplified check, can be made more robust)
+                    if scheme_cats and 'all' not in scheme_cats and required_cat not in user_text_representation:
+                         # Relaxed check: searchable text is better
+                        if required_cat not in searchable_text:
+                            # pass # Do not strictly filter categories yet as data might be messy
+                            pass 
             
-            # Filter by state
+            # Filter by state (STRICT)
             if 'state' in filters and include:
                 required_state = filters['state'].lower()
                 level = str(item.get('level', '')).lower()
+                state = str(item.get('state', '')).lower()
                 
                 # If central scheme, applicable to all states
-                is_central = 'central' in level
+                is_central = 'central' in level or 'national' in level or 'india' in level
+                
+                # If scheme is explicitly for another state, exclude it
+                # Logic: If required_state is NOT found in scheme state or level, AND it's not central -> Exclude
+                
+                # But mostly we want to check if the scheme IS from another specific state
+                # Example: data has "state": "Punjab". User wants "Uttar Pradesh".
                 
                 if not is_central:
-                    if required_state not in searchable_text:
+                    # If scheme has a specific state field
+                    if state and state != 'nan' and state != 'null':
+                        if required_state not in state:
+                            # It's a state scheme but not for our state
+                            include = False
+                    
+                    # Fallback: check text if state field missing
+                    elif required_state not in searchable_text:
+                        # Be careful filtering by text only to avoid false negatives
+                        # But user complained about relevance, so let's be stricter
                         include = False
             
             if include:

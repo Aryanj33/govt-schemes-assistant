@@ -103,15 +103,24 @@ class ConversationState:
         message_lower = user_message.lower()
         
         # Extract state
-        states = [
-            "maharashtra", "uttar pradesh", "up", "karnataka", "tamil nadu",
-            "rajasthan", "bihar", "west bengal", "gujarat", "madhya pradesh",
-            "kerala", "delhi", "telangana", "andhra pradesh", "punjab", "haryana",
-            "odisha", "jharkhand", "chhattisgarh", "assam"
-        ]
-        for state in states:
-            if state in message_lower:
-                self.profile.state = state.title()
+        states = {
+            "maharashtra": "Maharashtra", "uttar pradesh": "Uttar Pradesh", "up": "Uttar Pradesh",
+            "karnataka": "Karnataka", "tamil nadu": "Tamil Nadu", "rajasthan": "Rajasthan",
+            "bihar": "Bihar", "west bengal": "West Bengal", "gujarat": "Gujarat",
+            "madhya pradesh": "Madhya Pradesh", "mp": "Madhya Pradesh",
+            "kerala": "Kerala", "delhi": "Delhi", "telangana": "Telangana",
+            "andhra pradesh": "Andhra Pradesh", "ap": "Andhra Pradesh",
+            "punjab": "Punjab", "haryana": "Haryana", "odisha": "Odisha",
+            "jharkhand": "Jharkhand", "chhattisgarh": "Chhattisgarh", "assam": "Assam",
+            "himachal pradesh": "Himachal Pradesh", "hp": "Himachal Pradesh",
+            "uttarakhand": "Uttarakhand", "uk": "Uttarakhand",
+            "jammu": "Jammu", "kashmir": "Jammu"
+        }
+        
+        for key, value in states.items():
+            # Check for exact word match to avoid substrings (e.g., 'up' in 'support')
+            if f" {key} " in f" {message_lower} " or message_lower.startswith(f"{key} ") or message_lower.endswith(f" {key}") or message_lower == key:
+                self.profile.state = value
                 break
         
         # Extract category

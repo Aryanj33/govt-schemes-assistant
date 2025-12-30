@@ -464,31 +464,140 @@ class ScholarshipVoiceApp {
     }
 
     /**
-     * Play audio response
+     * Play audio response with Barge-In support
      */
     async playAudio(blob) {
         return new Promise((resolve, reject) => {
+            // Stop any existing audio
+            if (this.currentAudio) {
+                this.currentAudio.pause();
+                this.currentAudio = null;
+            }
+
             const audio = new Audio();
             audio.src = URL.createObjectURL(blob);
+            this.currentAudio = audio;
+
+            // Unlock audio on iOS/mobile
+            audio.play().catch(e => console.log('Autoplay prevented:', e));
+
+            // Start monitoring for interruption (Barge-In)
+            this.startInterruptionMonitoring(audio, resolve);
 
             audio.onended = () => {
+                this.stopInterruptionMonitoring();
                 URL.revokeObjectURL(audio.src);
+                this.currentAudio = null;
                 resolve();
             };
 
             audio.onerror = (error) => {
+                this.stopInterruptionMonitoring();
                 URL.revokeObjectURL(audio.src);
+                this.currentAudio = null;
                 reject(error);
             };
-
-            audio.play().catch(reject);
         });
+    }
+
+    /**
+     * Start monitoring microphone for interruption
+     */
+    async startInterruptionMonitoring(audioElement, resolvePromise) {
+        if (this.isMonitoringInterruption) return;
+
+        try {
+            console.log('👂 Barge-in monitoring started...');
+            this.isMonitoringInterruption = true;
+            this.ui.showToast('Speak to interrupt...');
+
+            // We need a separate stream for monitoring to avoid conflict with recording
+            // or we can reuse if we manage state carefully. 
+            // For simplicity, we get a new stream or reuse existing if available.
+
+            let stream = null;
+            if (this.mediaRecorder && this.mediaRecorder.stream && this.mediaRecorder.stream.active) {
+                stream = this.mediaRecorder.stream;
+            } else {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            }
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createMediaStreamSource(stream);
+            const analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            source.connect(analyser);
+
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            // Interruption threshold (tunable)
+            const THRESHOLD = 30; // 0-255
+            const SUSTAINED_FRAMES = 3; // How many frames to confirm voice
+            let triggers = 0;
+
+            const checkVolume = () => {
+                if (!this.isMonitoringInterruption) {
+                    audioContext.close();
+                    return;
+                }
+
+                analyser.getByteFrequencyData(dataArray);
+
+                // Calculate average volume
+                let sum = 0;
+                for (let i = 0; i < dataArray.length; i++) {
+                    sum += dataArray[i];
+                }
+                const average = sum / dataArray.length;
+
+                // Detect voice
+                if (average > THRESHOLD) {
+                    triggers++;
+                } else {
+                    triggers = Math.max(0, triggers - 1);
+                }
+
+                if (triggers >= SUSTAINED_FRAMES) {
+                    console.log('🛑 Interruption detected! Stopping playback.');
+
+                    // Stop audio
+                    audioElement.pause();
+                    audioElement.currentTime = 0;
+
+                    // Cleanup monitoring
+                    this.isMonitoringInterruption = false;
+                    audioContext.close();
+
+                    // Trigger new recording immediately
+                    this.ui.showToast('Interrupted! Listening...');
+                    this.startRecording(); // Start full recording
+
+                    // Resolve the playback promise early
+                    resolvePromise();
+                    return;
+                }
+
+                requestAnimationFrame(checkVolume);
+            };
+
+            checkVolume();
+
+        } catch (error) {
+            console.error('Barge-in setup failed:', error);
+        }
+    }
+
+    stopInterruptionMonitoring() {
+        this.isMonitoringInterruption = false;
+        console.log('👂 Barge-in monitoring stopped');
     }
 
     /**
      * Start visualizer animation
      */
     startVisualizerAnimation() {
+        if (!this.analyser) return;
+
         const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
 
         const animate = () => {

@@ -304,6 +304,19 @@ async def run_simple_server():
     app.router.add_post("/reset", handle_reset)
     app.router.add_get("/health", handle_health)
     
+    # Add Twilio phone call support if configured
+    if config.twilio.is_configured():
+        from telephony.twilio_handler import TwilioCallHandler, setup_twilio_routes
+        twilio_handler = TwilioCallHandler(
+            account_sid=config.twilio.account_sid,
+            auth_token=config.twilio.auth_token,
+            voice_agent=agent
+        )
+        setup_twilio_routes(app, twilio_handler)
+        logger.info(f"📞 Twilio phone calls enabled: {config.twilio.phone_number}")
+    else:
+        logger.info("📞 Twilio not configured - phone calls disabled")
+    
     # Serve frontend static files
     frontend_path = Path(__file__).parent.parent.parent / "frontend"
     if frontend_path.exists():

@@ -11,6 +11,10 @@ import time
 from pathlib import Path
 from typing import Optional, AsyncGenerator, Union
 import httpx
+try:
+    import edge_tts
+except ImportError:
+    edge_tts = None
 
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -149,6 +153,7 @@ class TextToSpeech:
     def __init__(self):
         """Initialize the TTS service."""
         self.bhashini_config = config.bhashini
+        self.edge_tts_config = config.edge_tts
         self.google_config = config.google
         self._client: Optional[httpx.AsyncClient] = None
         self._google_client = None
@@ -176,7 +181,13 @@ class TextToSpeech:
         Returns:
             Audio bytes (MP3/WAV format) or None if failed
         """
-        # Try Bhashini first
+        # Try Edge TTS first (Highest Quality)
+        if self.edge_tts_config.is_configured() and edge_tts is not None:
+            audio = await self._synthesize_edge_tts(text, language)
+            if audio:
+                return audio
+        
+        # Try Bhashini second
         if self.bhashini_config.is_configured():
             audio = await self._synthesize_bhashini(text, language)
             if audio:
@@ -187,9 +198,38 @@ class TextToSpeech:
         if self.google_config.is_tts_configured():
             return await self._synthesize_google(text, language, voice_gender)
         
-        # Last resort: edge-tts or return None
+        # Last resort: return None
         logger.error("❌ No TTS service available")
         return None
+    
+    async def _synthesize_edge_tts(
+        self,
+        text: str,
+        language: str = "hi"
+    ) -> Optional[bytes]:
+        """
+        Synthesize using Microsoft Edge TTS (Free Neural Voices).
+        Top quality for Hindi/Hinglish.
+        """
+        start_time = time.time()
+        try:
+            # Select voice
+            voice = self.edge_tts_config.voice_hindi if language == "hi" else self.edge_tts_config.voice_english
+            
+            communicate = edge_tts.Communicate(text, voice, rate=self.edge_tts_config.rate, pitch=self.edge_tts_config.pitch)
+            
+            audio_data = bytearray()
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    audio_data.extend(chunk["data"])
+            
+            elapsed = (time.time() - start_time) * 1000
+            logger.latency("EdgeTTS", elapsed)
+            return bytes(audio_data)
+            
+        except Exception as e:
+            logger.error_with_context("EdgeTTS", e, f"Text: {text[:50]}...")
+            return None
     
     async def _synthesize_bhashini(
         self,

@@ -36,8 +36,8 @@ class GroqConfig:
     api_key: str = field(default_factory=lambda: os.getenv("GROQ_API_KEY", ""))
     whisper_model: str = "whisper-large-v3-turbo"
     llm_model: str = "llama-3.1-8b-instant"  # Faster 8B model for lower latency
-    llm_temperature: float = 0.7
-    llm_max_tokens: int = 150  # Ultra-short responses for speed
+    llm_temperature: float = 0.3  # Lower for speed and consistency
+    llm_max_tokens: int = 100  # Ultra-short for conversational speed
     
     def is_configured(self) -> bool:
         return bool(self.api_key)
@@ -115,7 +115,7 @@ class DataConfig:
                   str(Path(__file__).parent.parent.parent / "data" / "embeddings" / "faiss_index"))
     ))
     embedding_model: str = "all-MiniLM-L6-v2"
-    top_k_results: int = 2  # Minimal context for max speed
+    top_k_results: int = 1  # Single best match for speed
     
     def ensure_directories(self):
         """Create data directories if they don't exist."""

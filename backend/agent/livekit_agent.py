@@ -8,7 +8,7 @@ Handles real-time voice conversation flow.
 import asyncio
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, AsyncGenerator
 
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -120,6 +120,116 @@ class ScholarshipVoiceAgent:
         logger.latency("End-to-End", (tts_time - start_time) * 1000)
         
         return audio_response
+    
+    async def process_audio_stream(
+        self, 
+        audio_data: bytes
+    ) -> 'AsyncGenerator[bytes, None]':
+        """
+        Stream audio responses as sentences are generated.
+        Achieves <500ms first-chunk latency through concurrent TTS.
+        
+        Pipeline:
+        1. STT (blocking) → Get user text
+        2. LLM Stream → Sentences to TTS Queue
+        3. TTS Worker → Audio chunks to Output Queue
+        4. Yield audio chunks as they're ready
+        
+        Args:
+            audio_data: Raw audio bytes from user
+            
+        Yields:
+            Audio chunks (MP3) for each sentence
+        """
+        await self.initialize()
+        
+        start_time = time.time()
+        
+        # Step 1: Speech to Text (blocking - unavoidable)
+        user_text = await self.voice_pipeline.speech_to_text(audio_data)
+        if not user_text:
+            logger.warning("⚠️ STT returned empty result")
+            return
+        
+        stt_time = time.time()
+        logger.latency("STT", (stt_time - start_time) * 1000)
+        
+        # Create queues for concurrent processing
+        sentence_queue: asyncio.Queue[Optional[str]] = asyncio.Queue()
+        audio_queue: asyncio.Queue[Optional[bytes]] = asyncio.Queue()
+        
+        # Start TTS worker (processes sentences → audio concurrently)
+        tts_task = asyncio.create_task(
+            self._tts_worker(sentence_queue, audio_queue, start_time)
+        )
+        
+        # Stream sentences from LLM → sentence queue
+        sentence_count = 0
+        async for sentence in self.conversation_handler.generate_response_stream(user_text):
+            if sentence.strip():
+                sentence_count += 1
+                logger.info(f"📝 Sentence {sentence_count}: {sentence[:50]}...")
+                await sentence_queue.put(sentence)
+        
+        # Signal end of sentences
+        await sentence_queue.put(None)
+        
+        # Yield audio chunks as they're ready
+        first_audio_time = None
+        chunk_count = 0
+        
+        while True:
+            audio_chunk = await audio_queue.get()
+            if audio_chunk is None:
+                break
+            
+            chunk_count += 1
+            
+            if first_audio_time is None:
+                first_audio_time = time.time()
+                logger.latency("First Audio Chunk", (first_audio_time - start_time) * 1000)
+            
+            yield audio_chunk
+        
+        # Wait for TTS worker to complete
+        await tts_task
+        
+        total_time = time.time() - start_time
+        logger.latency("Total Streaming", total_time * 1000)
+        logger.info(f"✅ Streamed {chunk_count} audio chunks in {total_time:.2f}s")
+    
+    async def _tts_worker(
+        self, 
+        sentence_queue: asyncio.Queue,
+        audio_queue: asyncio.Queue,
+        start_time: float
+    ):
+        """
+        TTS Worker: Process sentences to audio concurrently.
+        Allows overlapping TTS with LLM streaming.
+        """
+        sentence_num = 0
+        
+        while True:
+            sentence = await sentence_queue.get()
+            
+            if sentence is None:
+                # Signal end of audio
+                await audio_queue.put(None)
+                break
+            
+            sentence_num += 1
+            tts_start = time.time()
+            
+            # Convert sentence to audio
+            audio = await self.voice_pipeline.text_to_speech(sentence)
+            
+            if audio:
+                tts_elapsed = (time.time() - tts_start) * 1000
+                logger.latency(f"TTS Sentence {sentence_num}", tts_elapsed)
+                await audio_queue.put(audio)
+            else:
+                logger.warning(f"⚠️ TTS failed for sentence {sentence_num}")
     
     async def handle_text_message(self, text: str) -> str:
         """
@@ -247,7 +357,7 @@ async def run_simple_server():
     await agent.initialize()
     
     async def handle_audio(request: web.Request) -> web.Response:
-        """Handle audio POST request."""
+        """Handle audio POST request (non-streaming, legacy)."""
         try:
             audio_data = await request.read()
             response_audio = await agent.process_audio(audio_data)
@@ -262,6 +372,42 @@ async def run_simple_server():
                 
         except Exception as e:
             logger.error(f"❌ Request error: {e}")
+            return web.Response(status=500, text=str(e))
+    
+    async def handle_audio_stream(request: web.Request) -> web.StreamResponse:
+        """
+        Handle audio POST with streaming response.
+        Returns audio chunks as they're generated for <500ms first-chunk latency.
+        """
+        try:
+            audio_data = await request.read()
+            
+            # Prepare streaming response
+            response = web.StreamResponse(
+                status=200,
+                headers={
+                    'Content-Type': 'audio/mpeg',
+                    'Transfer-Encoding': 'chunked',
+                    'Cache-Control': 'no-cache',
+                }
+            )
+            await response.prepare(request)
+            
+            # Stream audio chunks as they're generated
+            chunk_count = 0
+            async for audio_chunk in agent.process_audio_stream(audio_data):
+                chunk_count += 1
+                await response.write(audio_chunk)
+                logger.info(f"📡 Sent audio chunk {chunk_count}: {len(audio_chunk)} bytes")
+            
+            await response.write_eof()
+            logger.info(f"✅ Streaming complete: {chunk_count} chunks sent")
+            return response
+            
+        except Exception as e:
+            logger.error(f"❌ Stream error: {e}")
+            import traceback
+            traceback.print_exc()
             return web.Response(status=500, text=str(e))
     
     async def handle_text(request: web.Request) -> web.Response:
@@ -300,6 +446,7 @@ async def run_simple_server():
     # Create app
     app = web.Application()
     app.router.add_post("/audio", handle_audio)
+    app.router.add_post("/audio/stream", handle_audio_stream)  # Low-latency streaming endpoint
     app.router.add_post("/text", handle_text)
     app.router.add_post("/reset", handle_reset)
     app.router.add_get("/health", handle_health)

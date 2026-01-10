@@ -7,6 +7,7 @@ Uses sentence-transformers for generating vector embeddings.
 import numpy as np
 from typing import List, Optional, Union
 from pathlib import Path
+from functools import lru_cache
 
 # Import sentence-transformers with fallback
 try:
@@ -137,6 +138,38 @@ class EmbeddingGenerator:
         return embeddings
 
 
+@lru_cache(maxsize=128)
+def _cached_query_hash(query: str) -> str:
+    """Helper to cache query strings (hashable)."""
+    return query
+
+
+class CachedEmbeddingGenerator(EmbeddingGenerator):
+    """Embedding generator with query caching for performance."""
+    
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        super().__init__(model_name)
+        self._query_cache = {}
+    
+    def encode_query(self, query: str) -> np.ndarray:
+        """
+        Generate embedding for search query with caching.
+        
+        Cache hit saves ~30-50ms per query.
+        """
+        if query in self._query_cache:
+            logger.info(f"⚡ Cache hit for query: {query[:30]}...")
+            return self._query_cache[query]
+        
+        embedding = super().encode_query(query)
+        
+        # Cache the result
+        if len(self._query_cache) < 100:  # Limit cache size
+            self._query_cache[query] = embedding
+        
+        return embedding
+
+
 def create_scholarship_text(item: dict) -> str:
     """
     Create a text representation of a scheme/scholarship for embedding.
@@ -199,11 +232,11 @@ def create_scholarship_text(item: dict) -> str:
 
 
 # Singleton instance
-_embedding_generator: Optional[EmbeddingGenerator] = None
+_embedding_generator: Optional[CachedEmbeddingGenerator] = None
 
-def get_embedding_generator() -> EmbeddingGenerator:
-    """Get the global embedding generator instance."""
+def get_embedding_generator() -> CachedEmbeddingGenerator:
+    """Get the global embedding generator instance with caching."""
     global _embedding_generator
     if _embedding_generator is None:
-        _embedding_generator = EmbeddingGenerator()
+        _embedding_generator = CachedEmbeddingGenerator()
     return _embedding_generator

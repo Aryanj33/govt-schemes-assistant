@@ -42,9 +42,8 @@ class TwilioCallHandler:
             
             # Greet the caller
             response.say(
-                "Namaste! Main Vidya hoon, aapki government schemes assistant. "
-                "Aap mujhse kisi bhi sarkari yojana ke baare mein pooch sakte hain.",
-                voice='Polly.Aditi',  # Indian voice
+                "Namaste! Main Vidya. Kis cheez mein madad chahiye?",
+                voice='Polly.Aditi',
                 language='hi-IN'
             )
             

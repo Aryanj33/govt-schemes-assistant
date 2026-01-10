@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 from typing import Optional, List, Dict, Any, AsyncGenerator
 from dataclasses import dataclass, field
+from enum import Enum
 
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -26,6 +27,16 @@ logger = get_logger()
 config = get_config()
 
 
+class ConversationFlow(Enum):
+    """States in the conversation flow."""
+    GREETING = "greeting"
+    ASKING_USER_TYPE = "asking_user_type"
+    ASKING_STATE = "asking_state"
+    ASKING_CATEGORY = "asking_category"  # For students
+    ASKING_DETAILS = "asking_details"    # Course/Crop/Business type
+    SEARCHING = "searching"
+    RECOMMENDING = "recommending"
+
 @dataclass
 class ConversationMessage:
     """Single message in conversation history."""
@@ -37,6 +48,7 @@ class ConversationMessage:
 @dataclass
 class UserProfile:
     """User profile extracted from conversation."""
+    user_type: Optional[str] = None  # student/farmer/business/other
     state: Optional[str] = None
     category: Optional[str] = None
     course: Optional[str] = None
@@ -60,6 +72,7 @@ class ConversationState:
     messages: List[ConversationMessage] = field(default_factory=list)
     profile: UserProfile = field(default_factory=UserProfile)
     last_scholarships: List[Dict] = field(default_factory=list)
+    conversation_flow: ConversationFlow = ConversationFlow.GREETING
     
     # Legacy compatibility
     @property
@@ -240,23 +253,31 @@ class ConversationHandler:
         # Extract preferences from message
         self.state.extract_preferences(user_message)
         
-        # Search for relevant scholarships
-        filters = {}
-        if self.state.preferred_category:
-            filters['category'] = self.state.preferred_category
-        if self.state.preferred_state:
-            filters['state'] = self.state.preferred_state
+        # Check if this is a profile/conversational question (skip RAG for speed)
+        is_profile_question = self._is_profile_question(user_message)
         
-        # Build search query combining user message with preferences
-        search_query = user_message
-        if self.state.preferred_course:
-            search_query += f" {self.state.preferred_course}"
-        if self.state.preferred_category:
-            search_query += f" {self.state.preferred_category}"
-        
-        # Get relevant scholarships
-        results = self.rag.search(search_query, top_k=5, filters=filters)
-        scholarship_context = format_scholarships_for_context([s for s, _ in results])
+        if is_profile_question:
+            # Skip RAG for profile questions - just use base prompt
+            scholarship_context = "No specific schemes yet - gather user info first."
+            logger.info("⚡ Skipping RAG for profile question")
+        else:
+            # Search for relevant scholarships
+            filters = {}
+            if self.state.preferred_category:
+                filters['category'] = self.state.preferred_category
+            if self.state.preferred_state:
+                filters['state'] = self.state.preferred_state
+            
+            # Build search query combining user message with preferences
+            search_query = user_message
+            if self.state.preferred_course:
+                search_query += f" {self.state.preferred_course}"
+            if self.state.preferred_category:
+                search_query += f" {self.state.preferred_category}"
+            
+            # Get relevant scholarships (use config top_k)
+            results = self.rag.search(search_query, top_k=config.data.top_k_results, filters=filters)
+            scholarship_context = format_scholarships_for_context([s for s, _ in results])
         
         # Build system prompt with context
         system_prompt = get_system_prompt_with_context(scholarship_context)
@@ -425,10 +446,34 @@ class ConversationHandler:
                         
                         if buffer_sentences:
                             sentence_buffer += content
-                            # Check for sentence endings
-                            if any(end in content for end in ['.', '!', '?', '।']):
-                                yield sentence_buffer.strip()
-                                sentence_buffer = ""
+                            
+                            # FAST PATH: Yield short acknowledgments quickly (<50 chars)
+                            # These are common conversational starters that should be spoken ASAP
+                            if len(sentence_buffer) < 60:
+                                lower_buffer = sentence_buffer.lower()
+                                short_ack_phrases = [
+                                    'ji haan', 'zaroor', 'bilkul', 'theek hai', 'haan ji',
+                                    'main batata', 'main batati', 'dekhiye', 'suniye',
+                                    'aapke liye', 'aap ke liye', 'hello', 'namaste'
+                                ]
+                                for phrase in short_ack_phrases:
+                                    if phrase in lower_buffer:
+                                        # Check if we have a natural break after the phrase
+                                        if any(d in sentence_buffer for d in '.!?।,'):
+                                            yield sentence_buffer.strip()
+                                            sentence_buffer = ""
+                                            break
+                            
+                            # NORMAL: Split on sentence delimiters
+                            for delim in '.!?।':
+                                if delim in sentence_buffer:
+                                    # Split on first occurrence
+                                    idx = sentence_buffer.index(delim)
+                                    sentence = sentence_buffer[:idx + 1].strip()
+                                    sentence_buffer = sentence_buffer[idx + 1:]
+                                    if sentence:
+                                        yield sentence
+                                    break
                         else:
                             yield content
                 
@@ -446,6 +491,49 @@ class ConversationHandler:
         # Fallback to non-streaming
         response = await self.generate_response(user_message)
         yield response
+    
+    def _is_profile_question(self, user_message: str) -> bool:
+        """
+        Detect if message is a profile/conversational question that doesn't need RAG.
+        
+        Profile questions are simple responses to questions like:
+        - "Kis state se ho?" -> "UP"
+        - "Aap kaun hain?" -> "Student"
+        - "Hello" / "Hi" / "Namaste"
+        
+        Returns:
+            True if this is a profile question (skip RAG), False otherwise
+        """
+        msg_lower = user_message.lower().strip()
+        
+        # Very short messages (likely one-word answers)
+        if len(msg_lower) <= 15:
+            # Common profile answer patterns
+            profile_patterns = [
+                # States
+                'up', 'delhi', 'punjab', 'bihar', 'mp', 'maharashtra', 'karnataka',
+                # User types
+                'student', 'kisan', 'farmer', 'business', 'businessman',
+                # Categories
+                'general', 'obc', 'sc', 'st', 'ews',
+                # Courses (short forms)
+                'btech', 'mtech', 'bsc', 'msc', 'ba', 'ma', 'bcom', 'mcom',
+                # Greetings
+                'hi', 'hello', 'namaste', 'haan', 'nahi', 'yes', 'no',  
+            ]
+            if any(pattern in msg_lower for pattern in profile_patterns):
+                return True
+        
+        # If message is asking for scheme info (contains scheme keywords)
+        scheme_keywords = ['scheme', 'yojana', 'scholarship', 'benefit', 'money', 'paisa', 'apply']
+        if any(keyword in msg_lower for keyword in scheme_keywords):
+            return False  # Need RAG for this
+        
+        # If we have no profile yet, first few messages are likely profile questions
+        if not self.state.profile.state and not self.state.profile.user_type:
+            return True
+        
+        return False
     
     def reset_conversation(self):
         """Reset conversation state for new session."""

@@ -78,20 +78,49 @@ class SpeechToText:
             
             # Check if it's WebM (starts with WEBM signature or is not WAV)
             if not audio_data[:4] == b'RIFF':
-                # Try using pydub for conversion
+                # Try fast ffmpeg subprocess first (no Python overhead)
                 try:
-                    from pydub import AudioSegment
-                    audio_segment = AudioSegment.from_file(io.BytesIO(audio_data), format="webm")
-                    wav_io = io.BytesIO()
-                    audio_segment.export(wav_io, format="wav")
-                    processed_audio = wav_io.getvalue()
-                    audio_filename = "audio.wav"
-                    audio_mime = "audio/wav"
-                    logger.info(f"📦 Converted WebM to WAV: {len(audio_data)} -> {len(processed_audio)} bytes")
-                except ImportError:
-                    logger.warning("⚠️ pydub not installed, sending raw audio")
-                except Exception as conv_err:
-                    logger.warning(f"⚠️ Audio conversion failed: {conv_err}, sending raw audio")
+                    process = await asyncio.create_subprocess_exec(
+                        'ffmpeg', '-i', 'pipe:0', '-f', 'wav', '-ar', '16000', '-ac', '1', 'pipe:1',
+                        stdin=asyncio.subprocess.PIPE,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.DEVNULL
+                    )
+                    stdout, _ = await process.communicate(input=audio_data)
+                    if stdout and len(stdout) > 44:  # Valid WAV has at least header
+                        processed_audio = stdout
+                        audio_filename = "audio.wav"
+                        audio_mime = "audio/wav"
+                        logger.info(f"⚡ Fast ffmpeg conversion: {len(audio_data)} -> {len(processed_audio)} bytes")
+                except FileNotFoundError:
+                    # ffmpeg not installed, try pydub fallback
+                    logger.info("📦 ffmpeg not found, using pydub fallback")
+                    try:
+                        from pydub import AudioSegment
+                        audio_segment = AudioSegment.from_file(io.BytesIO(audio_data), format="webm")
+                        wav_io = io.BytesIO()
+                        audio_segment.export(wav_io, format="wav")
+                        processed_audio = wav_io.getvalue()
+                        audio_filename = "audio.wav"
+                        audio_mime = "audio/wav"
+                        logger.info(f"📦 Pydub conversion: {len(audio_data)} -> {len(processed_audio)} bytes")
+                    except ImportError:
+                        logger.warning("⚠️ pydub not installed, sending raw audio")
+                    except Exception as conv_err:
+                        logger.warning(f"⚠️ Audio conversion failed: {conv_err}, sending raw audio")
+                except Exception as ffmpeg_err:
+                    logger.warning(f"⚠️ ffmpeg conversion failed: {ffmpeg_err}, trying pydub")
+                    # Fallback to pydub
+                    try:
+                        from pydub import AudioSegment
+                        audio_segment = AudioSegment.from_file(io.BytesIO(audio_data), format="webm")
+                        wav_io = io.BytesIO()
+                        audio_segment.export(wav_io, format="wav")
+                        processed_audio = wav_io.getvalue()
+                        audio_filename = "audio.wav"
+                        audio_mime = "audio/wav"
+                    except Exception:
+                        pass  # Use raw audio
             
             # Prepare the audio file
             files = {

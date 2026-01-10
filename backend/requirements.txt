@@ -22,6 +22,7 @@ google-generativeai>=0.3.0  # Gemini fallback
 sentence-transformers>=2.2.0
 faiss-cpu>=1.7.4
 numpy>=1.24.0
+rank-bm25>=0.2.2  # BM25 keyword search for hybrid retrieval
 
 # Data Processing
 beautifulsoup4>=4.12.0

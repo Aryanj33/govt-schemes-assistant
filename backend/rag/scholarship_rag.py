@@ -6,11 +6,15 @@ Retrieval-Augmented Generation for scholarship search.
 
 import json
 import time
+import pickle
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from rank_bm25 import BM25Okapi
+from sentence_transformers import CrossEncoder
 
 from utils.logger import get_logger
 from utils.config import get_config
@@ -28,11 +32,20 @@ class ScholarshipRAG:
     """
     
     def __init__(self):
-        """Initialize the RAG system."""
+        """Initialize the RAG system with hybrid search capabilities."""
         self.embedding_generator = get_embedding_generator()
         self.vectorstore = VectorStore(dimension=self.embedding_generator.dimension)
         self.scholarships: List[Dict[str, Any]] = []
         self._is_loaded = False
+        
+        # BM25 index for keyword-based search
+        self.bm25_index: Optional[BM25Okapi] = None
+        self.bm25_corpus: List[List[str]] = []  # Tokenized documents
+        
+        # Cross-encoder for re-ranking (load once at initialization)
+        logger.info("📥 Loading cross-encoder model for re-ranking...")
+        self.cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+        logger.info("✅ Cross-encoder loaded")
     
     def load_scholarships(self, json_path: Optional[Path] = None) -> int:
         """
@@ -69,7 +82,7 @@ class ScholarshipRAG:
     
     def build_index(self, force_rebuild: bool = False) -> bool:
         """
-        Build or load the FAISS index.
+        Build or load the FAISS and BM25 indices.
         
         Args:
             force_rebuild: If True, rebuild index even if exists on disk
@@ -78,15 +91,29 @@ class ScholarshipRAG:
             True if index is ready, False otherwise
         """
         index_path = config.data.faiss_index_path
+        bm25_path = index_path / "bm25_index.pkl"
         
-        # Try to load existing index
+        # Try to load existing indices
         if not force_rebuild and index_path.exists():
             if self.vectorstore.load(index_path):
-                self._is_loaded = True
-                logger.info(f"✅ Loaded existing index with {self.vectorstore.size} scholarships")
-                return True
+                # Try to load BM25 index
+                if bm25_path.exists():
+                    try:
+                        with open(bm25_path, 'rb') as f:
+                            bm25_data = pickle.load(f)
+                        self.bm25_index = bm25_data['index']
+                        self.bm25_corpus = bm25_data['corpus']
+                        logger.info(f"✅ Loaded BM25 index with {len(self.bm25_corpus)} documents")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Failed to load BM25 index: {e}. Will rebuild.")
+                        force_rebuild = True
+                
+                if not force_rebuild:
+                    self._is_loaded = True
+                    logger.info(f"✅ Loaded existing indices with {self.vectorstore.size} scholarships")
+                    return True
         
-        # Build new index
+        # Build new indices
         if not self.scholarships:
             self.load_scholarships()
         
@@ -94,27 +121,151 @@ class ScholarshipRAG:
             logger.error("❌ No scholarships to index")
             return False
         
-        logger.info("🔨 Building new FAISS index...")
+        logger.info("🔨 Building new FAISS and BM25 indices...")
         start_time = time.time()
         
         # Create text representations for embedding
         texts = [create_scholarship_text(s) for s in self.scholarships]
         
-        # Generate embeddings
+        # Generate embeddings for FAISS
         embeddings = self.embedding_generator.encode_documents(texts)
         
-        # Create index
+        # Create FAISS index
         self.vectorstore.create_index(embeddings, self.scholarships)
         
-        # Save index
+        # Build BM25 index
+        logger.info("🔨 Building BM25 keyword index...")
+        # Tokenize documents (simple whitespace + lowercase)
+        self.bm25_corpus = [text.lower().split() for text in texts]
+        self.bm25_index = BM25Okapi(self.bm25_corpus)
+        logger.info(f"✅ BM25 index built with {len(self.bm25_corpus)} documents")
+        
+        # Save indices
         index_path.mkdir(parents=True, exist_ok=True)
         self.vectorstore.save(index_path)
         
+        # Save BM25 index
+        with open(bm25_path, 'wb') as f:
+            pickle.dump({
+                'index': self.bm25_index,
+                'corpus': self.bm25_corpus
+            }, f)
+        logger.info(f"💾 Saved BM25 index to {bm25_path}")
+        
         elapsed = time.time() - start_time
-        logger.info(f"✅ Index built in {elapsed:.2f}s with {self.vectorstore.size} scholarships")
+        logger.info(f"✅ Hybrid indices built in {elapsed:.2f}s with {self.vectorstore.size} scholarships")
         
         self._is_loaded = True
         return True
+    
+    def _search_bm25(self, query: str, top_k: int = 20) -> List[Tuple[int, float]]:
+        """
+        Perform BM25 keyword-based search.
+        
+        Args:
+            query: Search query string
+            top_k: Number of top results to return
+            
+        Returns:
+            List of (doc_index, bm25_score) tuples
+        """
+        if self.bm25_index is None:
+            logger.warning("⚠️ BM25 index not available")
+            return []
+        
+        # Tokenize query
+        tokenized_query = query.lower().split()
+        
+        # Get BM25 scores for all documents
+        scores = self.bm25_index.get_scores(tokenized_query)
+        
+        # Get top-k indices
+        top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
+        
+        # Return as (index, score) tuples
+        return [(idx, float(scores[idx])) for idx in top_indices if scores[idx] > 0]
+    
+    def _reciprocal_rank_fusion(
+        self,
+        faiss_results: List[Tuple[Dict[str, Any], float]],
+        bm25_results: List[Tuple[int, float]],
+        k: int = 60
+    ) -> List[Tuple[Dict[str, Any], float]]:
+        """
+        Combine FAISS and BM25 results using Reciprocal Rank Fusion (RRF).
+        
+        RRF formula: score(d) = Σ 1 / (k + rank(d))
+        
+        Args:
+            faiss_results: List of (document, faiss_score) tuples
+            bm25_results: List of (doc_index, bm25_score) tuples
+            k: Constant for RRF (default 60, standard value)
+            
+        Returns:
+            Fused list of (document, rrf_score) tuples, sorted by RRF score
+        """
+        rrf_scores: Dict[str, float] = {}
+        doc_map: Dict[str, Dict[str, Any]] = {}
+        
+        # Process FAISS results
+        for rank, (doc, _) in enumerate(faiss_results):
+            doc_id = doc.get('id', str(id(doc)))
+            rrf_scores[doc_id] = rrf_scores.get(doc_id, 0) + 1 / (k + rank + 1)
+            doc_map[doc_id] = doc
+        
+        # Process BM25 results
+        for rank, (idx, _) in enumerate(bm25_results):
+            if idx < len(self.scholarships):
+                doc = self.scholarships[idx]
+                doc_id = doc.get('id', str(id(doc)))
+                rrf_scores[doc_id] = rrf_scores.get(doc_id, 0) + 1 / (k + rank + 1)
+                doc_map[doc_id] = doc
+        
+        # Sort by RRF score
+        sorted_docs = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
+        
+        # Return as (document, score) tuples
+        return [(doc_map[doc_id], score) for doc_id, score in sorted_docs]
+    
+    def _rerank_with_cross_encoder(
+        self,
+        query: str,
+        candidates: List[Tuple[Dict[str, Any], float]],
+        top_k: int = 5
+    ) -> List[Tuple[Dict[str, Any], float]]:
+        """
+        Re-rank top candidates using Cross-Encoder for precise relevance.
+        
+        Args:
+            query: User's natural language query
+            candidates: List of (scholarship, hybrid_score) tuples
+            top_k: Number of final results to return
+            
+        Returns:
+            Re-ranked list of top_k results with cross-encoder scores
+        """
+        if not candidates:
+            return []
+        
+        # Prepare query-document pairs
+        pairs = [
+            [query, create_scholarship_text(doc)]
+            for doc, _ in candidates
+        ]
+        
+        # Get cross-encoder scores
+        ce_scores = self.cross_encoder.predict(pairs)
+        
+        # Combine with original documents
+        reranked = [
+            (candidates[i][0], float(ce_scores[i]))
+            for i in range(len(candidates))
+        ]
+        
+        # Sort by cross-encoder score (descending)
+        reranked.sort(key=lambda x: x[1], reverse=True)
+        
+        return reranked[:top_k]
     
     def search(
         self, 
@@ -123,7 +274,14 @@ class ScholarshipRAG:
         filters: Optional[Dict[str, Any]] = None
     ) -> List[Tuple[Dict[str, Any], float]]:
         """
-        Search for scholarships matching the query.
+        Hybrid search for scholarships using FAISS + BM25 + Cross-Encoder.
+        
+        Pipeline:
+        1. FAISS semantic search (top 20)
+        2. BM25 keyword search (top 20)
+        3. Reciprocal Rank Fusion (merge results)
+        4. Metadata filtering (state, category)
+        5. Cross-encoder re-ranking (final top_k)
         
         Args:
             query: Natural language search query
@@ -138,27 +296,60 @@ class ScholarshipRAG:
             if not self.build_index():
                 return []
         
-        start_time = time.time()
+        overall_start = time.time()
         
-        # Generate query embedding
+        # Phase 1: FAISS semantic search
+        t0 = time.time()
         query_embedding = self.embedding_generator.encode_query(query)
+        faiss_results = self.vectorstore.search(query_embedding, top_k=20)
+        logger.latency("FAISS Search", (time.time() - t0) * 1000)
         
-        # Search vectorstore (get more results for filtering)
-        k = top_k * 2 if filters else top_k
-        results = self.vectorstore.search(query_embedding, top_k=k)
+        # Phase 2: BM25 keyword search
+        t1 = time.time()
+        bm25_results = self._search_bm25(query, top_k=20)
+        logger.latency("BM25 Search", (time.time() - t1) * 1000)
         
-        # Apply filters if provided
+        # Phase 3: Reciprocal Rank Fusion
+        t2 = time.time()
+        fused_results = self._reciprocal_rank_fusion(faiss_results, bm25_results)
+        logger.latency("RRF Fusion", (time.time() - t2) * 1000)
+        
+        # Take top 15 from fusion for filtering
+        fused_results = fused_results[:15]
+        
+        # Phase 4: Apply metadata filters
+        t3 = time.time()
         if filters:
-            results = self._apply_filters(results, filters)
+            filtered_results = self._apply_filters(fused_results, filters)
+        else:
+            filtered_results = fused_results
+        logger.latency("Filtering", (time.time() - t3) * 1000)
         
-        # Limit to top_k
-        results = results[:top_k]
+        # Take top 10 for re-ranking
+        candidates = filtered_results[:10]
         
-        elapsed = (time.time() - start_time) * 1000
-        logger.rag_query(query, len(results))
-        logger.latency("RAG Search", elapsed)
+        # Phase 5: Cross-encoder re-ranking
+        t4 = time.time()
+        final_results = self._rerank_with_cross_encoder(query, candidates, top_k=top_k)
+        logger.latency("Cross-Encoder Re-ranking", (time.time() - t4) * 1000)
         
-        return results
+        # Log overall metrics
+        elapsed = (time.time() - overall_start) * 1000
+        logger.rag_query(query, len(final_results))
+        logger.latency("Total Hybrid Search", elapsed)
+        
+        # Log retrieval precision
+        if filters and 'state' in filters:
+            state_matched = sum(
+                1 for doc, _ in final_results
+                if filters['state'].lower() in str(doc.get('state', '')).lower()
+                or 'central' in str(doc.get('level', '')).lower()
+                or 'national' in str(doc.get('level', '')).lower()
+            )
+            precision = state_matched / len(final_results) if final_results else 0
+            logger.info(f"🎯 State Filter Precision: {precision:.1%} ({state_matched}/{len(final_results)} matched)")
+        
+        return final_results
     
     def _apply_filters(
         self, 
@@ -166,79 +357,115 @@ class ScholarshipRAG:
         filters: Dict[str, Any]
     ) -> List[Tuple[Dict[str, Any], float]]:
         """
-        Apply filters to search results.
-        Flexible filtering for schemes and scholarships.
+        Apply robust metadata filters with Central scheme prioritization.
+        
+        Priority order:
+        1. Central/National schemes (always included - applicable everywhere)
+        2. State-specific schemes matching user's state
+        3. Strictly exclude schemes from other states
         """
-        filtered_results = []
+        if not results:
+            return []
+        
+        user_state = filters.get('state', '').lower() if filters.get('state') else None
+        user_category = filters.get('category', '').lower() if filters.get('category') else None
+        
+        central_schemes = []
+        state_matched = []
         
         for item, score in results:
             if not isinstance(item, dict):
-                print(f"❌ ERROR: Item is not a dict! Type: {type(item)}, Content: {item}")
+                logger.warning(f"⚠️ Skipping non-dict item in filter: {type(item)}")
                 continue
-                
-            include = True
             
             try:
-                # Get searchable text
-                searchable_text = (
-                    str(item.get('tags', [])) + " " + 
-                    item.get('name', '') + " " + 
-                    item.get('details', '') + " " +
-                    str(item.get('eligibility', ''))
-                ).lower()
-            except Exception as e:
-                print(f"❌ ERROR in _apply_filters accessing item: {e}")
-                print(f"Item content: {item}")
-                continue
-            
-            # Filter by category
-            if 'category' in filters:
-                required_cat = filters['category'].lower()
-                # Skip if general
-                if required_cat not in ['general', 'open']:
-                    # Check if scheme has category requirements
-                    scheme_cats = str(item.get('category', '')).lower()
-                    
-                    # If scheme is for specific categories and doesn't mention ours, exclude it
-                    # (This is a simplified check, can be made more robust)
-                    if scheme_cats and 'all' not in scheme_cats and required_cat not in user_text_representation:
-                         # Relaxed check: searchable text is better
-                        if required_cat not in searchable_text:
-                            # pass # Do not strictly filter categories yet as data might be messy
-                            pass 
-            
-            # Filter by state (STRICT)
-            if 'state' in filters and include:
-                required_state = filters['state'].lower()
                 level = str(item.get('level', '')).lower()
-                state = str(item.get('state', '')).lower()
+                scheme_state = str(item.get('state', '')).lower()
                 
-                # If central scheme, applicable to all states
-                is_central = 'central' in level or 'national' in level or 'india' in level
+                # Check if Central/National scheme (applicable to all states)
+                is_central = any(
+                    keyword in level 
+                    for keyword in ['central', 'national', 'india', 'all india', 'pan india']
+                )
                 
-                # If scheme is explicitly for another state, exclude it
-                # Logic: If required_state is NOT found in scheme state or level, AND it's not central -> Exclude
+                # Central schemes always included
+                if is_central:
+                    central_schemes.append((item, score))
+                    continue
                 
-                # But mostly we want to check if the scheme IS from another specific state
-                # Example: data has "state": "Punjab". User wants "Uttar Pradesh".
+                # State filtering (strict for non-central schemes)
+                if user_state:
+                    # Scheme has explicit state field
+                    if scheme_state and scheme_state not in ['nan', 'null', 'none', '']:
+                        # Check for state match (handle variations like "uttar pradesh" vs "up")
+                        state_match = (
+                            user_state in scheme_state or
+                            scheme_state in user_state or
+                            self._state_variants_match(user_state, scheme_state)
+                        )
+                        
+                        if state_match:
+                            state_matched.append((item, score))
+                        # else: Exclude (different state)
+                    else:
+                        # No explicit state - check if it's actually state-level
+                        if 'state' in level:
+                            # It claims to be state-level but no state specified - risky, skip
+                            continue
+                        else:
+                            # Might be general/ambiguous - include cautiously
+                            state_matched.append((item, score))
+                else:
+                    # No state filter - include all non-central
+                    state_matched.append((item, score))
                 
-                if not is_central:
-                    # If scheme has a specific state field
-                    if state and state != 'nan' and state != 'null':
-                        if required_state not in state:
-                            # It's a state scheme but not for our state
-                            include = False
+                # Category filtering (relaxed due to data quality issues)
+                # Note: Keeping this light as the cross-encoder will handle relevance
+                if user_category and user_category not in ['general', 'open']:
+                    # For now, defer to cross-encoder rather than strict category filtering
+                    # Future: Implement strict category logic when data is cleaned
+                    pass
                     
-                    # Fallback: check text if state field missing
-                    elif required_state not in searchable_text:
-                        # Be careful filtering by text only to avoid false negatives
-                        # But user complained about relevance, so let's be stricter
-                        include = False
-            
-            if include:
-                filtered_results.append((item, score))
+            except Exception as e:
+                logger.warning(f"⚠️ Error filtering item: {e}")
+                continue
         
-        return filtered_results
+        # Merge: State-matched first (higher priority), then Central schemes
+        filtered = state_matched + central_schemes
+        
+        logger.info(f"📊 Filter results: {len(state_matched)} state, {len(central_schemes)} central, {len(filtered)} total")
+        
+        return filtered
+    
+    def _state_variants_match(self, state1: str, state2: str) -> bool:
+        """
+        Check if two state strings match considering common abbreviations.
+        
+        Examples:
+        - "uttar pradesh" <-> "up"
+        - "tamil nadu" <-> "tn"
+        """
+        # Common state abbreviations
+        variants = {
+            'up': 'uttar pradesh',
+            'mp': 'madhya pradesh',
+            'tn': 'tamil nadu',
+            'ap': 'andhra pradesh',
+            'hp': 'himachal pradesh',
+            'jk': 'jammu kashmir',
+            'wb': 'west bengal',
+        }
+        
+        s1 = state1.strip()
+        s2 = state2.strip()
+        
+        # Check direct variants
+        if s1 in variants and variants[s1] == s2:
+            return True
+        if s2 in variants and variants[s2] == s1:
+            return True
+        
+        return False
     
     def format_for_llm(self, results: List[Tuple[Dict[str, Any], float]]) -> str:
         """Format search results for LLM context."""

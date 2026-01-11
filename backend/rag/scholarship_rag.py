@@ -325,6 +325,19 @@ class ScholarshipRAG:
             filtered_results = fused_results
         logger.latency("Filtering", (time.time() - t3) * 1000)
         
+        # --- START OF HIGH-CONFIDENCE BYPASS ---
+        BYPASS_THRESHOLD = 0.03  # RRF score threshold (top 5 in both FAISS & BM25)
+        if filtered_results and filtered_results[0][1] >= BYPASS_THRESHOLD:
+            logger.info(f"⚡ High-confidence bypass triggered (Score: {filtered_results[0][1]:.4f})")
+            final_results = filtered_results[:top_k]
+            
+            # Log metrics and exit early
+            elapsed = (time.time() - overall_start) * 1000
+            logger.rag_query(query, len(final_results))
+            logger.latency("Total Hybrid Search (BYPASSED)", elapsed)
+            return final_results
+        # --- END OF BYPASS ---
+        
         # Take top 10 for re-ranking
         candidates = filtered_results[:10]
         

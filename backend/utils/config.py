@@ -37,7 +37,7 @@ class GroqConfig:
     whisper_model: str = "whisper-large-v3-turbo"
     llm_model: str = "llama-3.1-8b-instant"  # Faster 8B model for lower latency
     llm_temperature: float = 0.3  # Lower for speed and consistency
-    llm_max_tokens: int = 100  # Ultra-short for conversational speed
+    llm_max_tokens: int = 60  # Very short for concise conversational responses
     
     def is_configured(self) -> bool:
         return bool(self.api_key)
@@ -84,6 +84,16 @@ class EdgeTTSConfig:
     
     def is_configured(self) -> bool:
         return True  # Always available as it's free/public
+
+@dataclass
+class ElevenLabsConfig:
+    """ElevenLabs TTS configuration for high-quality neural voices."""
+    api_key: str = field(default_factory=lambda: os.getenv("ELEVENLABS_API_KEY", ""))
+    voice_id: str = field(default_factory=lambda: os.getenv("ELEVENLABS_VOICE_ID", "pMsXg93S9C6U60rV9x9G"))  # Natural female voice
+    model_id: str = "eleven_multilingual_v2"  # Best quality for Hindi/Hinglish
+    
+    def is_configured(self) -> bool:
+        return bool(self.api_key)
 
 @dataclass
 class GoogleConfig:
@@ -135,6 +145,7 @@ class AppConfig:
     twilio: TwilioConfig = field(default_factory=TwilioConfig)
     bhashini: BhashiniConfig = field(default_factory=BhashiniConfig)
     edge_tts: EdgeTTSConfig = field(default_factory=EdgeTTSConfig)
+    elevenlabs: ElevenLabsConfig = field(default_factory=ElevenLabsConfig)
     google: GoogleConfig = field(default_factory=GoogleConfig)
     data: DataConfig = field(default_factory=DataConfig)
     

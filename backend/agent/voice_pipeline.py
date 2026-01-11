@@ -175,12 +175,13 @@ class SpeechToText:
 
 class TextToSpeech:
     """
-    Text-to-Speech using Bhashini API with Google Cloud fallback.
-    Natural Hindi voices for Indian context.
+    Text-to-Speech with ElevenLabs as primary provider.
+    Fallbacks: Edge TTS -> Bhashini -> Google Cloud.
     """
     
     def __init__(self):
         """Initialize the TTS service."""
+        self.elevenlabs_config = config.elevenlabs
         self.bhashini_config = config.bhashini
         self.edge_tts_config = config.edge_tts
         self.google_config = config.google
@@ -202,6 +203,8 @@ class TextToSpeech:
         """
         Synthesize speech from text.
         
+        Priority: ElevenLabs -> Edge TTS -> Bhashini -> Google Cloud
+        
         Args:
             text: Text to synthesize
             language: Language code (hi or en)
@@ -210,13 +213,20 @@ class TextToSpeech:
         Returns:
             Audio bytes (MP3/WAV format) or None if failed
         """
-        # Try Edge TTS first (Highest Quality)
+        # Try ElevenLabs first (Highest Quality Neural TTS)
+        if self.elevenlabs_config.is_configured():
+            audio = await self._synthesize_elevenlabs(text)
+            if audio:
+                return audio
+            logger.warning("⚠️ ElevenLabs TTS failed, trying Edge TTS")
+        
+        # Try Edge TTS second (Free High Quality)
         if self.edge_tts_config.is_configured() and edge_tts is not None:
             audio = await self._synthesize_edge_tts(text, language)
             if audio:
                 return audio
         
-        # Try Bhashini second
+        # Try Bhashini third
         if self.bhashini_config.is_configured():
             audio = await self._synthesize_bhashini(text, language)
             if audio:
@@ -230,6 +240,76 @@ class TextToSpeech:
         # Last resort: return None
         logger.error("❌ No TTS service available")
         return None
+    
+    async def _synthesize_elevenlabs(
+        self,
+        text: str,
+        voice_id: Optional[str] = None
+    ) -> Optional[bytes]:
+        """
+        High-fidelity neural synthesis using ElevenLabs Turbo.
+        Uses streaming endpoint with optimize_streaming_latency for fastest first chunk.
+        
+        Args:
+            text: Text to synthesize
+            voice_id: Optional voice ID override
+            
+        Returns:
+            Audio bytes (MP3) or None
+        """
+        start_time = time.time()
+        
+        api_key = self.elevenlabs_config.api_key
+        voice_id = voice_id or self.elevenlabs_config.voice_id
+        model_id = self.elevenlabs_config.model_id
+        
+        if not api_key:
+            return None
+        
+        # Use streaming endpoint for lower latency
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream"
+        
+        headers = {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": api_key
+        }
+        
+        data = {
+            "text": text,
+            "model_id": model_id,
+            "voice_settings": {
+                "stability": 0.7,  # Higher = clearer pronunciation
+                "similarity_boost": 0.75,
+                "style": 0.0,
+                "use_speaker_boost": True
+            },
+            "optimize_streaming_latency": 3  # Max optimization (1-4, higher = faster but slightly lower quality)
+        }
+        
+        try:
+            client = await self._get_client()
+            logger.api_call("ElevenLabs", "TTS-Stream")
+            
+            # Stream the response and collect chunks
+            async with client.stream("POST", url, json=data, headers=headers) as response:
+                if response.status_code == 200:
+                    audio_chunks = []
+                    async for chunk in response.aiter_bytes():
+                        audio_chunks.append(chunk)
+                    
+                    audio_bytes = b"".join(audio_chunks)
+                    elapsed = (time.time() - start_time) * 1000
+                    logger.latency("ElevenLabs TTS", elapsed)
+                    return audio_bytes
+                else:
+                    error_text = await response.aread()
+                    logger.error(f"❌ ElevenLabs TTS error: {response.status_code} - {error_text[:100]}")
+                    return None
+                
+        except Exception as e:
+            logger.error_with_context("ElevenLabs TTS", e, f"Text: {text[:50]}...")
+            return None
     
     async def _synthesize_edge_tts(
         self,

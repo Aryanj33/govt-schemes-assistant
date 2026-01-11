@@ -460,6 +460,12 @@ async def run_simple_server():
             voice_agent=agent
         )
         setup_twilio_routes(app, twilio_handler)
+        
+        # Pre-generate greeting audio for instant playback
+        async def pregenerate_on_startup(app):
+            await twilio_handler.pregenerate_greeting()
+        app.on_startup.append(pregenerate_on_startup)
+        
         logger.info(f"📞 Twilio phone calls enabled: {config.twilio.phone_number}")
     else:
         logger.info("📞 Twilio not configured - phone calls disabled")

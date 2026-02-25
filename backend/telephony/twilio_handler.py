@@ -91,35 +91,31 @@ class TwilioCallHandler:
     async def handle_incoming_call(self, request: web.Request) -> web.Response:
         """
         Handle incoming phone call from Twilio.
-        This is called when someone dials your Twilio number.
         """
         try:
-            # Get call data from Twilio
-            data = await request.post()
-            call_sid = data.get('CallSid')
-            from_number = data.get('From')
-            
-            logger.info(f"📞 Incoming call from {from_number} (SID: {call_sid})")
-            
+            logger.info("📞 Incoming call received")
             response = VoiceResponse()
-            
-            # Use pre-cached greeting if available (instant playback)
-            if self._greeting_audio_id and self._greeting_audio_id in self.audio_cache:
-                response.play(f'/twilio/audio/{self._greeting_audio_id}')
-                logger.info("⚡ Using cached greeting (0ms TTS)")
-            else:
-                # Fallback: generate on-the-fly
-                response = await self._generate_audio_response(self.GREETING_TEXT)
-            
-            # Start gathering speech input
+
+            # Start gathering speech input IMMEDIATELY (Barge-in enabled)
             gather = Gather(
                 input='speech',
                 action='/twilio/process-speech',
                 language='hi-IN',
                 speech_timeout='auto',
-                speech_model='phone_call'
+                speech_model='phone_call',
+                bargeIn=True  # Enable interruption
             )
+            
+            # Nest the greeting inside Gather so it plays WHILE listening
+            if self._greeting_audio_id and self._greeting_audio_id in self.audio_cache:
+                gather.play(f'/twilio/audio/{self._greeting_audio_id}')
+                logger.info("⚡ Using cached greeting with barge-in")
+            else:
+                gather.say(self.GREETING_TEXT, voice='Polly.Aditi', language='hi-IN')
+
             response.append(gather)
+            
+            # If no input, say goodbye (Fallback)
             
             # If no input, say goodbye (Fallback)
             response.say(
@@ -134,9 +130,13 @@ class TwilioCallHandler:
             )
             
         except Exception as e:
-            logger.error(f"❌ Error handling incoming call: {e}")
+            import traceback
+            traceback.print_exc()
+            logger.error(f"❌ Critical Error in handle_incoming_call: {e}")
+            
+            # Safe Fallback
             response = VoiceResponse()
-            response.say("Sorry, technical problem ho gayi hai. Phir se try karein.")
+            response.say("Sorry, system error.", voice='Polly.Aditi')
             return web.Response(text=str(response), content_type='text/xml')
     
     async def process_speech(self, request: web.Request) -> web.Response:
@@ -150,10 +150,13 @@ class TwilioCallHandler:
             
             logger.info(f"🎤 User said: {speech_result}")
             
+            # Initialize response object
+            response = VoiceResponse()
+            
             if not speech_result:
-                response = await self._generate_audio_response("Aapka sawaal samajh nahi aaya. Kripya dobara boliye.")
-                response.redirect('/twilio/voice')
-                return web.Response(text=str(response), content_type='text/xml')
+                resp = await self._generate_audio_response("Aapka sawaal samajh nahi aaya. Kripya dobara boliye.")
+                resp.redirect('/twilio/voice')
+                return web.Response(text=str(resp), content_type='text/xml')
             
             # Get AI response using existing conversation handler
             ai_response = await self.voice_agent.conversation_handler.generate_response(
@@ -162,16 +165,29 @@ class TwilioCallHandler:
             
             logger.info(f"🤖 AI response: {ai_response[:100]}...")
             
-            # Create response with AI answer (ElevenLabs Audio)
-            response = await self._generate_audio_response(ai_response)
-            
-            # Gather more input
+            # Gather input with Barge-In enabled
             gather = Gather(
                 input='speech',
                 action='/twilio/process-speech',
                 language='hi-IN',
-                speech_timeout='auto'
+                speech_timeout='auto',
+                bargeIn=True
             )
+            
+            # Nest the AI response audio inside Gather
+            # We need to generate the audio first to get the ID/Bytes
+            
+            # Generate audio using the voice pipeline
+            audio_bytes = await self.voice_agent.voice_pipeline.text_to_speech(ai_response, detected_language="hi")
+            
+            if audio_bytes:
+                audio_id = str(uuid.uuid4())
+                self.audio_cache[audio_id] = audio_bytes
+                gather.play(f'/twilio/audio/{audio_id}')
+            else:
+                # Fallback to TTS if audio generation fails
+                gather.say(ai_response, voice='Polly.Aditi', language='hi-IN')
+
             response.append(gather)
             
             # If no more input, goodbye

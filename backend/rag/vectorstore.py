@@ -70,12 +70,12 @@ class VectorStore:
         # Create index - using IVF for larger datasets, flat for small
         n_vectors = len(embeddings)
         
-        if n_vectors < 100:
-            # For small datasets, use simple flat index
-            self.index = faiss.IndexFlatIP(self.dimension)  # Inner Product = cosine for normalized
+        if n_vectors < 10000:
+            # For small/medium datasets, use simple flat index (safer and fast enough)
+            self.index = faiss.IndexFlatIP(self.dimension)
             logger.info(f"📊 Created Flat index for {n_vectors} vectors")
         else:
-            # For larger datasets, use IVF
+            # For very large datasets, use IVF
             n_clusters = min(int(np.sqrt(n_vectors)), 100)
             quantizer = faiss.IndexFlatIP(self.dimension)
             self.index = faiss.IndexIVFFlat(quantizer, self.dimension, n_clusters, faiss.METRIC_INNER_PRODUCT)

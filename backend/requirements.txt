@@ -14,6 +14,7 @@ groq>=0.4.0
 edge-tts>=6.1.9
 google-cloud-texttospeech>=2.14.0
 httpx>=0.25.0  # For Bhashini API calls
+cartesia>=1.0.0  # Cartesia Sonic TTS (primary)
 
 # LLM
 google-generativeai>=0.3.0  # Gemini fallback
@@ -33,6 +34,7 @@ lxml>=4.9.0
 python-dotenv>=1.0.0
 pydantic>=2.0.0
 aiohttp>=3.9.0
+aiohttp-cors>=0.8.0
 aiofiles>=23.2.0
 
 # Audio Processing

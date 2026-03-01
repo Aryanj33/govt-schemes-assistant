@@ -45,11 +45,11 @@ class TwilioCallHandler:
             logger.error(f"❌ Failed to pre-generate greeting: {e}")
         
     async def _generate_audio_response(self, text: str) -> VoiceResponse:
-        """Generate TwiML with <Play> tag for ElevenLabs audio."""
+        """Generate TwiML with <Play> tag for Cartesia audio."""
         response = VoiceResponse()
         
         try:
-            # Generate audio using the voice pipeline (uses ElevenLabs if configured)
+            # Generate audio using the voice pipeline (uses Cartesia if configured)
             # Use 'hi' as hint language for proper Indian accent handling
             audio_bytes = await self.voice_agent.voice_pipeline.text_to_speech(text, detected_language="hi")
             
@@ -86,7 +86,7 @@ class TwilioCallHandler:
         if not audio_id.startswith("greeting-"):
             del self.audio_cache[audio_id]
         
-        return web.Response(body=audio_data, content_type='audio/mpeg')
+        return web.Response(body=audio_data, content_type='audio/wav')
 
     async def handle_incoming_call(self, request: web.Request) -> web.Response:
         """

@@ -175,13 +175,13 @@ class SpeechToText:
 
 class TextToSpeech:
     """
-    Text-to-Speech with ElevenLabs as primary provider.
+    Text-to-Speech with Cartesia as primary provider.
     Fallbacks: Edge TTS -> Bhashini -> Google Cloud.
     """
     
     def __init__(self):
         """Initialize the TTS service."""
-        self.elevenlabs_config = config.elevenlabs
+        self.cartesia_config = config.cartesia
         self.bhashini_config = config.bhashini
         self.edge_tts_config = config.edge_tts
         self.google_config = config.google
@@ -203,7 +203,7 @@ class TextToSpeech:
         """
         Synthesize speech from text.
         
-        Priority: ElevenLabs -> Edge TTS -> Bhashini -> Google Cloud
+        Priority: Cartesia -> Edge TTS -> Bhashini -> Google Cloud
         
         Args:
             text: Text to synthesize
@@ -213,12 +213,12 @@ class TextToSpeech:
         Returns:
             Audio bytes (MP3/WAV format) or None if failed
         """
-        # Try ElevenLabs first (Highest Quality Neural TTS)
-        if self.elevenlabs_config.is_configured():
-            audio = await self._synthesize_elevenlabs(text)
+        # Try Cartesia first (Ultra-low latency neural TTS)
+        if self.cartesia_config.is_configured():
+            audio = await self._synthesize_cartesia(text, language)
             if audio:
                 return audio
-            logger.warning("⚠️ ElevenLabs TTS failed, trying Edge TTS")
+            logger.warning("⚠️ Cartesia TTS failed, trying Edge TTS")
         
         # Try Edge TTS second (Free High Quality)
         if self.edge_tts_config.is_configured() and edge_tts is not None:
@@ -241,74 +241,76 @@ class TextToSpeech:
         logger.error("❌ No TTS service available")
         return None
     
-    async def _synthesize_elevenlabs(
+    async def _synthesize_cartesia(
         self,
         text: str,
+        language: str = "en",
         voice_id: Optional[str] = None
     ) -> Optional[bytes]:
         """
-        High-fidelity neural synthesis using ElevenLabs Turbo.
-        Uses streaming endpoint with optimize_streaming_latency for fastest first chunk.
+        Ultra-low-latency neural synthesis using Cartesia Sonic.
+        Uses the /tts/bytes endpoint for direct audio byte delivery.
         
         Args:
             text: Text to synthesize
+            language: Language code (hi or en)
             voice_id: Optional voice ID override
             
         Returns:
-            Audio bytes (MP3) or None
+            Audio bytes (WAV) or None
         """
         start_time = time.time()
         
-        api_key = self.elevenlabs_config.api_key
-        voice_id = voice_id or self.elevenlabs_config.voice_id
-        model_id = self.elevenlabs_config.model_id
+        api_key = self.cartesia_config.api_key
+        voice_id = voice_id or self.cartesia_config.voice_id
+        model_id = self.cartesia_config.model_id
         
         if not api_key:
             return None
         
-        # Use streaming endpoint for lower latency
-        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream"
+        url = "https://api.cartesia.ai/tts/bytes"
         
         headers = {
-            "Accept": "audio/mpeg",
-            "Content-Type": "application/json",
-            "xi-api-key": api_key
+            "X-API-Key": api_key,
+            "Cartesia-Version": "2025-04-16",
+            "Content-Type": "application/json"
         }
         
+        # Map language code to Cartesia-supported language
+        lang_map = {"hi": "hi", "en": "en"}
+        cartesia_lang = lang_map.get(language, "en")
+        
         data = {
-            "text": text,
+            "transcript": text,
             "model_id": model_id,
-            "voice_settings": {
-                "stability": 0.7,  # Higher = clearer pronunciation
-                "similarity_boost": 0.75,
-                "style": 0.0,
-                "use_speaker_boost": True
+            "voice": {
+                "mode": "id",
+                "id": voice_id
             },
-            "optimize_streaming_latency": 3  # Max optimization (1-4, higher = faster but slightly lower quality)
+            "language": cartesia_lang,
+            "output_format": {
+                "container": "wav",
+                "encoding": "pcm_s16le",
+                "sample_rate": 22050
+            }
         }
         
         try:
             client = await self._get_client()
-            logger.api_call("ElevenLabs", "TTS-Stream")
+            logger.api_call("Cartesia", "TTS-Bytes")
             
-            # Stream the response and collect chunks
-            async with client.stream("POST", url, json=data, headers=headers) as response:
-                if response.status_code == 200:
-                    audio_chunks = []
-                    async for chunk in response.aiter_bytes():
-                        audio_chunks.append(chunk)
-                    
-                    audio_bytes = b"".join(audio_chunks)
-                    elapsed = (time.time() - start_time) * 1000
-                    logger.latency("ElevenLabs TTS", elapsed)
-                    return audio_bytes
-                else:
-                    error_text = await response.aread()
-                    logger.error(f"❌ ElevenLabs TTS error: {response.status_code} - {error_text[:100]}")
-                    return None
+            response = await client.post(url, json=data, headers=headers)
+            if response.status_code == 200:
+                audio_bytes = response.content
+                elapsed = (time.time() - start_time) * 1000
+                logger.latency("Cartesia TTS", elapsed)
+                return audio_bytes
+            else:
+                logger.error(f"❌ Cartesia TTS error: {response.status_code} - {response.text[:100]}")
+                return None
                 
         except Exception as e:
-            logger.error_with_context("ElevenLabs TTS", e, f"Text: {text[:50]}...")
+            logger.error_with_context("Cartesia TTS", e, f"Text: {text[:50]}...")
             return None
     
     async def _synthesize_edge_tts(

@@ -86,11 +86,11 @@ class EdgeTTSConfig:
         return True  # Always available as it's free/public
 
 @dataclass
-class ElevenLabsConfig:
-    """ElevenLabs TTS configuration for high-quality neural voices."""
-    api_key: str = field(default_factory=lambda: os.getenv("ELEVENLABS_API_KEY", ""))
-    voice_id: str = field(default_factory=lambda: os.getenv("ELEVENLABS_VOICE_ID", "pMsXg93S9C6U60rV9x9G"))  # Natural female voice
-    model_id: str = "eleven_multilingual_v2"  # Best quality for Hindi/Hinglish
+class CartesiaConfig:
+    """Cartesia TTS configuration for ultra-low-latency neural voices."""
+    api_key: str = field(default_factory=lambda: os.getenv("CARTESIA_API_KEY", ""))
+    voice_id: str = field(default_factory=lambda: os.getenv("CARTESIA_VOICE_ID", "694f9389-aac1-45b6-b726-9d9369183238"))  # Default Cartesia voice
+    model_id: str = "sonic-3"  # Latest Sonic model
     
     def is_configured(self) -> bool:
         return bool(self.api_key)
@@ -145,7 +145,7 @@ class AppConfig:
     twilio: TwilioConfig = field(default_factory=TwilioConfig)
     bhashini: BhashiniConfig = field(default_factory=BhashiniConfig)
     edge_tts: EdgeTTSConfig = field(default_factory=EdgeTTSConfig)
-    elevenlabs: ElevenLabsConfig = field(default_factory=ElevenLabsConfig)
+    cartesia: CartesiaConfig = field(default_factory=CartesiaConfig)
     google: GoogleConfig = field(default_factory=GoogleConfig)
     data: DataConfig = field(default_factory=DataConfig)
     
@@ -188,6 +188,7 @@ class AppConfig:
         print(f"🔊 LiveKit: {'✅ Configured' if self.livekit.is_configured() else '❌ Not configured'}")
         print(f"📞 Twilio Phone: {'✅ Configured' if self.twilio.is_configured() else '❌ Not configured'}")
         print(f"🗣️  Bhashini TTS: {'✅ Configured' if self.bhashini.is_configured() else '❌ Not configured'}")
+        print(f"🎙️  Cartesia TTS: {'✅ Configured' if self.cartesia.is_configured() else '❌ Not configured'}")
         print(f"☁️  Google TTS: {'✅ Configured' if self.google.is_tts_configured() else '❌ Not configured'}")
         print(f"🤖 Gemini LLM: {'✅ Configured' if self.google.is_gemini_configured() else '❌ Not configured'}")
         print()

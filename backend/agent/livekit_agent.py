@@ -471,15 +471,17 @@ async def run_simple_server():
         logger.info("📞 Twilio not configured - phone calls disabled")
     
     # Serve frontend static files
-    frontend_path = Path(__file__).parent.parent.parent / "frontend"
+    frontend_path = Path(__file__).parent.parent.parent / "frontend" / "dist"
     if frontend_path.exists():
-        app.router.add_static('/css/', frontend_path / 'css', name='css')
-        app.router.add_static('/js/', frontend_path / 'js', name='js')
+        app.router.add_static('/assets/', frontend_path / 'assets', name='assets')
         
         async def handle_index(request):
             return web.FileResponse(frontend_path / 'index.html')
         app.router.add_get('/', handle_index)
-        logger.info(f"📁 Serving frontend from {frontend_path}")
+        app.router.add_get('/{tail:.*}', handle_index) # Fallback for React Router
+        logger.info(f"📁 Serving built frontend from {frontend_path}")
+    else:
+        logger.warning(f"⚠️ Built frontend not found at {frontend_path}. Did you run 'npm run build'?")
     
     # Enable CORS
     import aiohttp_cors

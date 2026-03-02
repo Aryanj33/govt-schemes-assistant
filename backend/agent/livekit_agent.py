@@ -442,7 +442,42 @@ async def run_simple_server():
             "status": "healthy",
             "scholarships_loaded": agent.rag.vectorstore.size if agent.rag else 0
         })
-    
+
+    async def handle_token(request: web.Request) -> web.Response:
+        """
+        Generate a LiveKit access token for the frontend to join the voice room.
+        Returns: {"token": "<jwt>", "url": "<livekit-server-url>"}
+        """
+        import uuid
+        try:
+            from livekit import api as lk_api
+            identity = f"user-{uuid.uuid4().hex[:8]}"
+            token = (
+                lk_api.AccessToken(config.livekit.api_key, config.livekit.api_secret)
+                .with_identity(identity)
+                .with_name("Web User")
+                .with_grants(lk_api.VideoGrants(
+                    room_join=True,
+                    room=config.livekit.room_name,
+                ))
+                .to_jwt()
+            )
+            return web.json_response({
+                "token": token,
+                "url": config.livekit.url,
+                "room": config.livekit.room_name,
+            })
+        except ImportError:
+            # livekit SDK not installed — return a placeholder so the UI doesn't crash
+            logger.warning("⚠️ livekit SDK not available, cannot generate real token")
+            return web.json_response(
+                {"error": "LiveKit SDK not installed on backend. Install livekit package."},
+                status=503,
+            )
+        except Exception as e:
+            logger.error(f"❌ Token generation failed: {e}")
+            return web.json_response({"error": str(e)}, status=500)
+
     # Create app
     app = web.Application()
     app.router.add_post("/audio", handle_audio)
@@ -450,6 +485,7 @@ async def run_simple_server():
     app.router.add_post("/text", handle_text)
     app.router.add_post("/reset", handle_reset)
     app.router.add_get("/health", handle_health)
+    app.router.add_post("/token", handle_token)  # LiveKit token for frontend
     
     # Add Twilio phone call support if configured
     if config.twilio.is_configured():

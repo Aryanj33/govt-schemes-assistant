@@ -1,157 +1,374 @@
 import { useState } from "react";
-import { LiveKitRoom, RoomAudioRenderer, VoiceAssistantControlBar, AudioVisualizer, useVoiceAssistant } from "@livekit/components-react";
-import { Volume2, Loader2, Disc3 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import {
+    LiveKitRoom,
+    RoomAudioRenderer,
+    VoiceAssistantControlBar,
+    AudioVisualizer,
+    useVoiceAssistant,
+} from "@livekit/components-react";
+import { Loader2, Mic, PhoneOff, Sparkles, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+/* ─── Suggested queries ──────────────────────────────────────────────── */
+const SAMPLE_QUERIES = [
+    { hi: "मुझे इंजीनियरिंग की पढ़ाई के लिए छात्रवृत्ति चाहिए", en: "Scholarship for engineering" },
+    { hi: "PM-KISAN में कितना पैसा मिलता है?", en: "PM-KISAN amount" },
+    { hi: "मुद्रा लोन कैसे मिलेगा?", en: "Mudra loan process" },
+    { hi: "दिव्यांग पेंशन के बारे में बताओ", en: "Divyang pension info" },
+];
+
+/* ─── State → visual config map ─────────────────────────────────────── */
+const STATE_CONFIG: Record<string, { color: string; glow: string; label: string; pulse: boolean }> = {
+    connecting: { color: "#6366f1", glow: "rgba(99,102,241,0.4)", label: "Connecting…", pulse: true },
+    idle: { color: "#8b5cf6", glow: "rgba(139,92,246,0.3)", label: "Ready", pulse: false },
+    listening: { color: "#3b82f6", glow: "rgba(59,130,246,0.6)", label: "Listening", pulse: true },
+    thinking: { color: "#a855f7", glow: "rgba(168,85,247,0.6)", label: "Thinking…", pulse: true },
+    speaking: { color: "#22c55e", glow: "rgba(34,197,94,0.6)", label: "Speaking", pulse: true },
+    disconnected: { color: "#ef4444", glow: "rgba(239,68,68,0.3)", label: "Disconnected", pulse: false },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Main page component
+═══════════════════════════════════════════════════════════════════════ */
 export default function VidyaHubPage() {
     const [token, setToken] = useState<string>("");
+    const [serverUrl, setServerUrl] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [inRoom, setInRoom] = useState<boolean>(false);
-
-    // Hardcoded for now, real app should get from /livekit/url endpoint if dynamic
-    const serverUrl = import.meta.env.VITE_LIVEKIT_URL || "wss://your-livekit-url";
 
     const connectToVoice = async () => {
         setLoading(true);
         try {
-            // In a real app, this would hit your Python backend to get a specific token
-            // Currently, the python backend directly serves the html with the token injected, 
-            // but here we simulate a token fetch endpoint that we would need to add to the python backend.
-            const response = await fetch("http://localhost:8080/token", { method: "POST" });
-            if (response.ok) {
-                const data = await response.json();
+            const res = await fetch("/token", { method: "POST" });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.error) { alert(`Backend: ${data.error}`); return; }
                 setToken(data.token);
+                setServerUrl(data.url);
                 setInRoom(true);
             } else {
-                alert("Failed to get connection token. Ensure the Python backend is running and GROQ/LiveKit keys are present.");
+                alert("Could not get token — is the Python backend running?");
             }
         } catch (e) {
             console.error(e);
-            alert("Error connecting to backend server.");
+            alert("Failed to reach backend server.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="container px-4 py-12 mx-auto max-w-4xl flex flex-col items-center">
-            <div className="text-center mb-10">
-                <Badge variant="outline" className="mb-4 bg-primary/5 text-primary">Live Voice Assistant</Badge>
-                <h1 className="text-4xl font-bold tracking-tight mb-4">Talk to Vidya</h1>
-                <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                    Vidya is an AI government counselor connected to a database of 3,400+ schemes. Ask her about scholarships, loans, or pensions.
-                </p>
+        <div
+            className="min-h-screen w-full flex flex-col items-center"
+            style={{
+                background: "linear-gradient(135deg, #0f0c29 0%, #1a1040 40%, #0f172a 100%)",
+            }}
+        >
+            {/* ── Ambient background blobs ── */}
+            <div className="pointer-events-none fixed inset-0 overflow-hidden">
+                <div style={{
+                    position: "absolute", top: "10%", left: "15%",
+                    width: 400, height: 400, borderRadius: "50%",
+                    background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)",
+                    filter: "blur(60px)",
+                }} />
+                <div style={{
+                    position: "absolute", bottom: "15%", right: "10%",
+                    width: 350, height: 350, borderRadius: "50%",
+                    background: "radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)",
+                    filter: "blur(60px)",
+                }} />
             </div>
 
-            <Card className="w-full max-w-2xl bg-gradient-to-br from-card to-muted/20 border-border/50 shadow-xl overflow-hidden relative min-h-[400px] flex items-center justify-center">
-                {!inRoom ? (
-                    <div className="flex flex-col items-center justify-center p-10 text-center z-10">
-                        <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-                            <Volume2 className="h-10 w-10 text-primary" />
-                        </div>
-                        <h2 className="text-2xl font-semibold mb-2">Ready to assist you</h2>
-                        <p className="text-muted-foreground mb-8">Click connect to establish a secure voice connection.</p>
-                        <Button size="lg" className="rounded-full h-12 px-8 text-base shadow-lg" onClick={connectToVoice} disabled={loading}>
-                            {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Volume2 className="mr-2 h-5 w-5" />}
-                            {loading ? "Connecting..." : "Connect to Voice"}
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="w-full h-full flex flex-col pt-8">
-                        <LiveKitRoom
-                            token={token}
-                            serverUrl={serverUrl}
-                            connect={true}
-                            audio={true}
-                            video={false}
-                            className="flex flex-col w-full h-full"
+            {/* ── Header ── */}
+            <div className="relative z-10 text-center pt-16 pb-8 px-4">
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <span style={{
+                        display: "inline-flex", alignItems: "center", gap: 6,
+                        padding: "6px 16px", borderRadius: 999,
+                        background: "rgba(99,102,241,0.15)",
+                        border: "1px solid rgba(99,102,241,0.3)",
+                        color: "#a5b4fc", fontSize: 13, fontWeight: 600,
+                        letterSpacing: "0.06em", marginBottom: 20,
+                    }}>
+                        <Zap size={13} /> LIVE VOICE ASSISTANT
+                    </span>
+
+                    <h1 style={{
+                        fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 800,
+                        background: "linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 50%, #818cf8 100%)",
+                        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                        marginBottom: 16, lineHeight: 1.1,
+                    }}>
+                        Talk to Vidya
+                    </h1>
+
+                    <p style={{ color: "rgba(165,180,252,0.7)", fontSize: 16, maxWidth: 480, margin: "0 auto" }}>
+                        Your AI government counselor — speak in Hindi, English, or Hinglish to discover
+                        benefits across <strong style={{ color: "#a5b4fc" }}>3,400+ schemes</strong>.
+                    </p>
+                </motion.div>
+            </div>
+
+            {/* ── Main card ── */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                style={{
+                    position: "relative", zIndex: 10,
+                    width: "100%", maxWidth: 640, margin: "0 16px",
+                    borderRadius: 28,
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    backdropFilter: "blur(24px)",
+                    boxShadow: "0 32px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
+                    overflow: "hidden",
+                    minHeight: 460,
+                }}
+            >
+                <AnimatePresence mode="wait">
+                    {!inRoom ? (
+                        <motion.div
+                            key="idle"
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "60px 40px", textAlign: "center" }}
                         >
-                            <ActiveVoiceSession onDisconnect={() => setInRoom(false)} />
-                            <RoomAudioRenderer />
-                        </LiveKitRoom>
-                    </div>
-                )}
-            </Card>
+                            {/* Orb */}
+                            <div style={{ position: "relative", marginBottom: 40 }}>
+                                <motion.div
+                                    animate={{ scale: [1, 1.08, 1], opacity: [0.4, 0.7, 0.4] }}
+                                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                                    style={{
+                                        position: "absolute", inset: -24, borderRadius: "50%",
+                                        background: "radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%)",
+                                        filter: "blur(12px)",
+                                    }}
+                                />
+                                <div style={{
+                                    width: 120, height: 120, borderRadius: "50%",
+                                    background: "linear-gradient(135deg, rgba(99,102,241,0.3) 0%, rgba(139,92,246,0.2) 100%)",
+                                    border: "1px solid rgba(99,102,241,0.4)",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    boxShadow: "0 0 40px rgba(99,102,241,0.3)",
+                                }}>
+                                    <span style={{ fontSize: 48 }}>🤖</span>
+                                </div>
+                            </div>
 
-            <div className="mt-12 w-full max-w-2xl">
-                <h3 className="font-semibold text-lg mb-4 text-center">Try asking:</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card className="p-4 bg-muted/30 border-none cursor-help hover:bg-muted/50 transition-colors">
-                        <p className="text-sm">"मुझे इंजीनियरिंग की पढ़ाई के लिए छात्रवृत्ति चाहिए, मैं उत्तर प्रदेश से हूँ।"</p>
-                    </Card>
-                    <Card className="p-4 bg-muted/30 border-none cursor-help hover:bg-muted/50 transition-colors">
-                        <p className="text-sm">"How can I apply for a Mudra loan for my new business?"</p>
-                    </Card>
+                            <h2 style={{ color: "#e0e7ff", fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
+                                Vidya is ready
+                            </h2>
+                            <p style={{ color: "rgba(165,180,252,0.6)", fontSize: 14, marginBottom: 36, maxWidth: 340 }}>
+                                Click below to start a voice session. Allow microphone access when prompted.
+                            </p>
+
+                            <motion.button
+                                whileHover={{ scale: 1.04 }}
+                                whileTap={{ scale: 0.97 }}
+                                onClick={connectToVoice}
+                                disabled={loading}
+                                style={{
+                                    display: "inline-flex", alignItems: "center", gap: 10,
+                                    padding: "14px 36px", borderRadius: 999,
+                                    background: loading
+                                        ? "rgba(99,102,241,0.4)"
+                                        : "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+                                    color: "#fff", fontWeight: 700, fontSize: 15,
+                                    border: "none", cursor: loading ? "not-allowed" : "pointer",
+                                    boxShadow: "0 8px 32px rgba(99,102,241,0.4)",
+                                    transition: "all 0.2s",
+                                }}
+                            >
+                                {loading
+                                    ? <><Loader2 size={18} className="animate-spin" /> Connecting…</>
+                                    : <><Mic size={18} /> Connect to Voice</>
+                                }
+                            </motion.button>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="in-room"
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            style={{ width: "100%", height: "100%" }}
+                        >
+                            <LiveKitRoom
+                                key={token}
+                                token={token}
+                                serverUrl={serverUrl}
+                                connect={true}
+                                audio={true}
+                                video={false}
+                                onDisconnected={() => setInRoom(false)}
+                                onError={(err) => {
+                                    console.error("LiveKit error:", err);
+                                    alert(`Voice error: ${err.message}`);
+                                    setInRoom(false);
+                                }}
+                            >
+                                <ActiveVoiceSession onDisconnect={() => setInRoom(false)} />
+                                <RoomAudioRenderer />
+                            </LiveKitRoom>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.div>
+
+            {/* ── Sample queries ── */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 640, padding: "32px 16px 48px" }}
+            >
+                <p style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    color: "rgba(165,180,252,0.6)", fontSize: 13, fontWeight: 600,
+                    letterSpacing: "0.05em", marginBottom: 16, justifyContent: "center",
+                }}>
+                    <Sparkles size={13} /> TRY ASKING VIDYA
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    {SAMPLE_QUERIES.map((q, i) => (
+                        <motion.div
+                            key={i}
+                            whileHover={{ scale: 1.02, borderColor: "rgba(99,102,241,0.5)" }}
+                            style={{
+                                padding: "14px 16px", borderRadius: 14,
+                                background: "rgba(255,255,255,0.04)",
+                                border: "1px solid rgba(255,255,255,0.08)",
+                                cursor: "default", transition: "all 0.2s",
+                            }}
+                        >
+                            <p style={{ color: "#e0e7ff", fontSize: 13, marginBottom: 4, fontWeight: 500 }}>
+                                {q.hi}
+                            </p>
+                            <p style={{ color: "rgba(165,180,252,0.45)", fontSize: 11 }}>{q.en}</p>
+                        </motion.div>
+                    ))}
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 }
 
-// Inner component that actually uses the LiveKit hooks
+/* ═══════════════════════════════════════════════════════════════════════
+   Inner voice session — uses LiveKit hooks
+═══════════════════════════════════════════════════════════════════════ */
 function ActiveVoiceSession({ onDisconnect }: { onDisconnect: () => void }) {
     const { state, audioTrack } = useVoiceAssistant();
+    const cfg = STATE_CONFIG[state] ?? STATE_CONFIG.idle;
 
     return (
-        <div className="flex flex-col h-full bg-transparent w-full pb-8">
-            <div className="flex-1 flex flex-col items-center justify-center py-10 relative">
-                <AnimatePresence mode="wait">
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "50px 24px 32px" }}>
+            {/* ── Animated orb ── */}
+            <div style={{ position: "relative", marginBottom: 32 }}>
+                {/* Outer pulse ring */}
+                {cfg.pulse && (
                     <motion.div
-                        key={state}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        className="flex flex-col items-center justify-center z-10"
-                    >
-                        {/* The "Vidya" Avatar / Visualizer */}
-                        <div className={`relative flex items-center justify-center w-48 h-48 rounded-full mb-8 transition-all duration-500
-              ${state === "listening" ? "shadow-[0_0_40px_rgba(59,130,246,0.5)] border-4 border-blue-500/50" : ""}
-              ${state === "speaking" ? "shadow-[0_0_60px_rgba(34,197,94,0.6)] border-4 border-green-500/50" : ""}
-              ${state === "thinking" ? "shadow-[0_0_30px_rgba(168,85,247,0.5)] border-4 border-purple-500/50" : ""}
-              ${state === "connecting" ? "scale-90 opacity-50 border-4 border-gray-500/50" : ""}
-              ${state === "disconnected" ? "opacity-30 border-4 border-red-500/50" : ""}
-              bg-background
-            `}>
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-transparent m-2"></div>
-
-                            {state === "speaking" && audioTrack && (
-                                <div className="absolute inset-0 opacity-80 z-0">
-                                    <AudioVisualizer trackRef={audioTrack} className="w-full h-full text-green-500" />
-                                </div>
-                            )}
-
-                            {state === "thinking" && (
-                                <Disc3 className="h-16 w-16 text-purple-500 animate-spin z-10 opacity-80" />
-                            )}
-
-                            {state === "listening" && (
-                                <Volume2 className="h-16 w-16 text-blue-500 animate-pulse z-10" />
-                            )}
-
-                            {state === "idle" || state === "connecting" || state === "disconnected" ? (
-                                <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center z-10">
-                                    <span className="text-3xl">🤖</span>
-                                </div>
-                            ) : null}
+                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                        transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+                        style={{
+                            position: "absolute", inset: -20, borderRadius: "50%",
+                            border: `2px solid ${cfg.color}`,
+                            pointerEvents: "none",
+                        }}
+                    />
+                )}
+                {/* Glow */}
+                <div style={{
+                    position: "absolute", inset: -16, borderRadius: "50%",
+                    background: `radial-gradient(circle, ${cfg.glow} 0%, transparent 70%)`,
+                    filter: "blur(8px)", transition: "all 0.5s",
+                }} />
+                {/* Orb body */}
+                <motion.div
+                    animate={cfg.pulse ? { scale: [1, 1.04, 1] } : { scale: 1 }}
+                    transition={{ duration: 1.2, repeat: cfg.pulse ? Infinity : 0, ease: "easeInOut" }}
+                    style={{
+                        width: 160, height: 160, borderRadius: "50%",
+                        background: `radial-gradient(circle at 35% 35%, ${cfg.color}55 0%, ${cfg.color}22 60%, transparent 100%)`,
+                        border: `2px solid ${cfg.color}66`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        boxShadow: `0 0 48px ${cfg.glow}, inset 0 0 32px ${cfg.color}22`,
+                        transition: "border-color 0.5s, box-shadow 0.5s",
+                        position: "relative",
+                        overflow: "hidden",
+                    }}
+                >
+                    {/* AudioVisualizer when speaking */}
+                    {state === "speaking" && audioTrack && (
+                        <div style={{ position: "absolute", inset: 0, opacity: 0.7 }}>
+                            <AudioVisualizer trackRef={audioTrack} style={{ width: "100%", height: "100%", color: cfg.color }} />
                         </div>
-
-                        <Badge variant="secondary" className="px-4 py-1.5 text-sm uppercase tracking-wider bg-background/80 backdrop-blur-md">
-                            {state.toUpperCase()}
-                        </Badge>
-                    </motion.div>
-                </AnimatePresence>
+                    )}
+                    {/* Static inner emoji/icon */}
+                    <AnimatePresence mode="wait">
+                        <motion.span
+                            key={state}
+                            initial={{ opacity: 0, scale: 0.6 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.6 }}
+                            style={{ fontSize: 52, zIndex: 2, position: "relative" }}
+                        >
+                            {state === "listening" ? "🎤"
+                                : state === "thinking" ? "💭"
+                                    : state === "speaking" ? "🔊"
+                                        : state === "disconnected" ? "📵"
+                                            : "🤖"}
+                        </motion.span>
+                    </AnimatePresence>
+                </motion.div>
             </div>
 
-            <div className="w-full flex justify-center mt-auto pb-6">
-                <div className="bg-background/80 backdrop-blur-md p-2 rounded-full shadow-lg border flex gap-2">
-                    <VoiceAssistantControlBar controls={{ leave: false }} />
-                    <Button variant="destructive" size="icon" className="rounded-full" onClick={onDisconnect}>
-                        <Volume2 className="h-4 w-4" />
-                    </Button>
-                </div>
+            {/* State badge */}
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={state}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    style={{
+                        padding: "6px 20px", borderRadius: 999,
+                        background: `${cfg.color}22`,
+                        border: `1px solid ${cfg.color}55`,
+                        color: cfg.color, fontWeight: 700, fontSize: 13,
+                        letterSpacing: "0.1em", marginBottom: 36,
+                        transition: "all 0.3s",
+                    }}
+                >
+                    {cfg.label.toUpperCase()}
+                </motion.div>
+            </AnimatePresence>
+
+            {/* Controls */}
+            <div style={{
+                display: "flex", alignItems: "center", gap: 12,
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 999, padding: "10px 16px",
+                backdropFilter: "blur(12px)",
+            }}>
+                <VoiceAssistantControlBar controls={{ leave: false }} />
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={onDisconnect}
+                    title="End call"
+                    style={{
+                        width: 40, height: 40, borderRadius: "50%",
+                        background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                        border: "none", cursor: "pointer", color: "#fff",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        boxShadow: "0 4px 16px rgba(239,68,68,0.4)",
+                    }}
+                >
+                    <PhoneOff size={16} />
+                </motion.button>
             </div>
         </div>
     );

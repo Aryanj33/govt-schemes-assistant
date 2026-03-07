@@ -12,17 +12,11 @@ redis:
   address: redis:6379
 
 keys:
-  # IMPORTANT: Generate your own keys for production!
-  # Use: openssl rand -base64 32
-  APIKey: devkey  # Replace with your actual API key
-  # API Secret will be: secret (replace in production)
+  devkey: secret_govtschemes_assistant_dev_32x
 
 logging:
   level: info
   json: false
 
 turn:
-  enabled: true
-  domain: localhost
-  tls_port: 7882
-  udp_port: 7882
+  enabled: false

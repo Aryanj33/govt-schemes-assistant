@@ -435,6 +435,37 @@ async def run_simple_server():
         """Reset conversation session."""
         agent.reset_session()
         return web.json_response({"status": "reset"})
+
+    async def handle_search(request: web.Request) -> web.Response:
+        """Search government schemes via RAG — used by the Discover page."""
+        try:
+            data = await request.json()
+            query = data.get("query", "").strip()
+            limit = int(data.get("limit", 10))
+            if not query:
+                return web.json_response({"results": [], "error": "query is required"}, status=400)
+            await agent.initialize()
+            results = agent.rag.search(query, top_k=limit)
+            formatted = [
+                {
+                    "id": str(i),
+                    "name": s.get("name", ""),
+                    "details": s.get("details", s.get("description", "")),
+                    "benefits": s.get("benefits", ""),
+                    "eligibility": str(s.get("eligibility", "")),
+                    "application_process": s.get("application_process", ""),
+                    "state": s.get("state", ""),
+                    "category": s.get("category", ""),
+                    "source": s.get("source_url", s.get("source", "")),
+                    "score": round(float(score), 4),
+                }
+                for i, (s, score) in enumerate(results)
+            ]
+            return web.json_response({"results": [[r, r["score"]] for r in formatted], "total": len(formatted)})
+        except Exception as e:
+            logger.error(f"❌ Search error: {e}")
+            import traceback; traceback.print_exc()
+            return web.Response(status=500, text=str(e))
     
     async def handle_health(request: web.Request) -> web.Response:
         """Health check endpoint."""
@@ -484,6 +515,7 @@ async def run_simple_server():
     app.router.add_post("/audio/stream", handle_audio_stream)  # Low-latency streaming endpoint
     app.router.add_post("/text", handle_text)
     app.router.add_post("/reset", handle_reset)
+    app.router.add_post("/search", handle_search)  # Scheme search for Discover page
     app.router.add_get("/health", handle_health)
     app.router.add_post("/token", handle_token)  # LiveKit token for frontend
     

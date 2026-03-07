@@ -135,7 +135,7 @@ export default function DiscoverPage() {
     /* ── Filtered results ── */
     const filtered = activeCategory === "All"
         ? results
-        : results.filter(s => s.category?.toLowerCase().includes(activeCategory.toLowerCase()));
+        : results.filter(s => String(s.category ?? '').toLowerCase().includes(activeCategory.toLowerCase()));
 
     /* ── Close sort dropdown on outside click ── */
     useEffect(() => {
@@ -144,13 +144,13 @@ export default function DiscoverPage() {
         return () => document.removeEventListener("click", h);
     }, []);
 
-    const hasResults = results.length > 0;
+
     const hasQuery = query.trim().length > 0;
 
     return (
         <div style={{
             minHeight: "100vh",
-            background: "linear-gradient(135deg, #0f0c29 0%, #1a1040 40%, #0f172a 100%)",
+            background: "#000000",
             paddingBottom: 80,
         }}>
             {/* ── Background blobs ── */}

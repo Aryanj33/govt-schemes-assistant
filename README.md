@@ -1,190 +1,188 @@
 # 🏛️ Government Schemes Voice Assistant
 
-> AI-powered voice assistant helping Indian citizens discover government schemes through natural conversations in Hindi, English, and Hinglish.
+> AI-powered assistant helping Indian citizens discover government schemes through natural language search and voice conversations in Hindi, English, and Hinglish.
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![Python](https://img.shields.io/badge/Python-3.9+-blue)
 ![React](https://img.shields.io/badge/React-18-61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## ✨ Features
 
-- **🎤 Natural Voice Conversations** - Speak in Hindi, English, or Hinglish
-- **🔍 Smart Scheme Search** - Hybrid RAG (FAISS + BM25 + Cross-Encoder) for semantic search
-- **🤖 AI Counselor "Vidya"** - Bureaucratic insider persona with practical government advice
-- **⚡ Ultra-Low Latency** - Groq LPU for fast STT/LLM inference
-- **📱 Modern React UI** - Dashboard, scheme discovery, and voice interaction hub
-- **📞 Telephony Support** - Twilio integration for phone-based assistance
-- **🏥 Health Camps** - Nearby health camp discovery with geolocation
+- **🔍 AI Scheme Search** — Natural language search over 3,400+ government schemes (FAISS + BM25 + Cross-Encoder)
+- **🎤 Voice Conversations** — Speak in Hindi, English, or Hinglish with AI counselor "Vidya"
+- **⚡ Ultra-Low Latency** — Groq LPU for fast STT/LLM inference (<500ms first audio chunk)
+- **📱 Modern React UI** — Discover page, Dashboard, and VidyaHub voice interface
+- **📞 Phone Support** — Twilio integration for phone-based scheme assistance
+- **🤖 Smart Ranking** — Reciprocal Rank Fusion + Cross-Encoder re-ranking for best results
 
 ## 🎯 Who It Helps
 
-- **Students** - Scholarships, hostels, books
-- **Farmers/Kisan** - PM-KISAN, crop insurance
-- **Fishermen** - PMMSY, boat loans
-- **MSME/Businessmen** - Mudra loans, MSME schemes
-- **Divyang (Disabled)** - Disability pensions, ADIP scheme
-- **Women, Senior Citizens, Laborers** - Various welfare schemes
+| Citizen | Schemes |
+|---------|---------|
+| **Students** | PM Scholarship, Post Matric SC/ST/OBC, AICTE Pragati, INSPIRE |
+| **Farmers** | PM-KISAN, PM Fasal Bima Yojana, crop insurance |
+| **Fishermen** | PMMSY, Blue Revolution |
+| **MSME / Businesses** | Mudra Loans, MSME Registration |
+| **Divyang (Disabled)** | IGNDPS, ADIP Scheme, National Trust |
+| **Women** | PM Kaushal Vikas, Mahila Shakti Kendra |
+| **Senior Citizens** | Pension schemes, elder welfare |
 
 ## 🏗️ Architecture
 
 ```
-User (Browser) ──WebSocket──> FastAPI Backend
-                                    │
-          ┌─────────────────────────┼─────────────────────────┐
-          ▼                         ▼                         ▼
-    LiveKit Agent              RAG Pipeline              Telephony
-          │                         │                         │
-    ┌─────┴─────┐           ┌───────┴───────┐                 │
-    ▼           ▼           ▼       ▼       ▼                 ▼
-  Silero     Groq        FAISS   BM25    Cross-          Twilio
-   VAD      Whisper     (Vector) (Kwd)   Encoder         (SMS/Call)
-                                    
-    ▼                               
-  Groq Llama 3.3 70B ──> Edge TTS / Bhashini (TTS)
+Browser ──HTTP──> aiohttp Backend (port 8080)
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+  RAG Pipeline    Voice Agent    Telephony
+        │              │              │
+  FAISS + BM25    Groq Whisper    Twilio
+  Cross-Encoder   Llama 3.3 70B   (Calls)
+                  Cartesia TTS
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.10+
+- Python 3.9+
 - Node.js 18+
 
-### 1. Clone & Setup Backend
+### 1. Clone & Setup
 
 ```bash
-cd c:\Users\alexu\Desktop\PBL\Voice
+git clone https://github.com/Aryanj33/govt-schemes-assistant.git
+cd govt-schemes-assistant
+```
+
+### 2. Backend Setup
+
+```bash
 cd backend
-python -m venv venv
-.\venv\Scripts\activate
+python3 -m venv venv
+source venv/bin/activate        # Mac/Linux
+# .\venv\Scripts\activate       # Windows
 pip install -r requirements.txt
 ```
 
-### 2. Configure API Keys
+### 3. Configure API Keys
 
-```bash
-copy ..\config\.env.example ..\config\.env
-# Edit .env with your API keys (GROQ_API_KEY, LIVEKIT_*, TWILIO_*)
+Create `backend/.env`:
+
+```env
+GROQ_API_KEY=your_groq_key
+GOOGLE_API_KEY=your_google_key
+CARTESIA_API_KEY=your_cartesia_key
+ELEVENLABS_API_KEY=your_elevenlabs_key
+TWILIO_ACCOUNT_SID=your_twilio_sid
+TWILIO_AUTH_TOKEN=your_twilio_token
+TWILIO_PHONE_NUMBER=+1xxxxxxxxxx
+LIVEKIT_URL=ws://localhost:7880
+LIVEKIT_API_KEY=devkey
+LIVEKIT_API_SECRET=your_secret
+PORT=8080
 ```
 
-See [API_KEYS.md](docs/API_KEYS.md) for detailed instructions.
+See [docs/API_KEYS.md](docs/API_KEYS.md) for how to get each key.
 
-### 3. Start Backend
+### 4. Start Backend
 
 ```bash
+cd backend
+source venv/bin/activate
 python main.py
 ```
 
-### 4. Start Frontend
+Backend runs at **http://localhost:8080**
+
+### 5. Start Frontend
 
 ```bash
-cd ..\frontend
+cd frontend
 npm install
 npm run dev
 ```
 
-Open **http://localhost:5173** and start exploring!
+Frontend runs at **http://localhost:5173** — open it in your browser!
 
-## 🎯 Try These Queries
+## 🎯 Try These Searches
 
-- "Mujhe engineering scholarship chahiye"
-- "PM-KISAN mein kitna paisa milta hai?"
-- "Main SC category se hoon, UP state"
-- "Divyang pension ke baare mein batao"
-- "MSME loan kaise milega?"
+- `Engineering scholarships for SC students in Maharashtra`
+- `PM-KISAN mein kitna paisa milta hai?`
+- `Mudra loan for new business`
+- `Pension schemes for senior citizens`
+- `Financial help for pregnant women`
 
 ## 📁 Project Structure
 
 ```
 govt-schemes-assistant/
 ├── backend/
-│   ├── agent/              # LiveKit voice pipeline & conversation handler
-│   │   ├── livekit_agent.py
-│   │   ├── conversation_handler.py
-│   │   └── voice_pipeline.py
-│   ├── rag/                # Hybrid RAG (FAISS + BM25 + Cross-Encoder)
-│   │   ├── scholarship_rag.py
-│   │   ├── embeddings.py
-│   │   └── vectorstore.py
-│   ├── data/               # Scrapers & preprocessors
-│   │   ├── advanced_scraper.py
-│   │   ├── preprocessor.py
-│   │   └── health_camps.json
-│   ├── database/           # SQLite call records
-│   ├── telephony/          # Twilio SMS & voice calls
-│   └── utils/              # Config, logging, geocoding
+│   ├── agent/
+│   │   ├── livekit_agent.py       # HTTP server + all API endpoints
+│   │   ├── conversation_handler.py # Vidya AI persona + LLM
+│   │   └── voice_pipeline.py      # STT → LLM → TTS pipeline
+│   ├── rag/
+│   │   ├── scholarship_rag.py     # Hybrid search (FAISS + BM25 + Cross-Encoder)
+│   │   ├── embeddings.py          # Sentence Transformer embeddings
+│   │   └── vectorstore.py         # FAISS vector store
+│   ├── telephony/
+│   │   └── twilio_handler.py      # Phone call handling
+│   ├── utils/                     # Config, logging
+│   ├── data/                      # Scheme JSONs + FAISS index
+│   ├── make_call.py               # Script to initiate outbound calls
+│   ├── main.py                    # Entry point
+│   └── requirements.txt
 │
-├── frontend/               # React + TypeScript + Vite
-│   ├── src/
-│   │   ├── pages/          # Dashboard, Discover, Login, Signup, VidyaHub
-│   │   ├── components/     # Header, SchemeCard, VidyaOrb, UI (shadcn)
-│   │   ├── lib/            # API client, utilities
-│   │   └── contexts/       # React contexts
-│   └── package.json
-│
-├── config/
-│   ├── .env                # API keys & configuration
-│   └── prompts.py          # Vidya persona & LLM prompts
-│
-├── data/
-│   ├── processed/          # Scheme JSONs
-│   └── embeddings/         # FAISS & BM25 indices
+├── frontend/
+│   └── src/
+│       ├── pages/
+│       │   ├── DiscoverPage.tsx   # Scheme search UI (calls POST /search)
+│       │   ├── Dashboard.tsx      # User dashboard
+│       │   └── VidyaHub.tsx       # Voice conversation interface
+│       └── components/            # Reusable UI components (shadcn/ui)
 │
 └── docs/
-    ├── SETUP.md
     ├── API_KEYS.md
     └── DEMO.md
 ```
 
 ## 📊 Tech Stack
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Frontend** | React 18 + TypeScript + Vite | Modern SPA with shadcn/ui |
-| **Styling** | TailwindCSS | Utility-first CSS framework |
-| **Backend** | Python + FastAPI | API server & agent orchestration |
-| **STT** | Groq Whisper | 216x faster, Indian accent support |
-| **LLM** | Groq Llama 3.3 70B | 300+ tokens/sec, free tier |
-| **TTS** | Edge TTS / Bhashini | Natural Hindi voices |
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | React 18 + TypeScript + Vite | Modern SPA |
+| **UI Components** | shadcn/ui + Framer Motion | Polished, animated UI |
+| **Backend** | Python + aiohttp | Async HTTP server |
+| **STT** | Groq Whisper | Fast, Indian-accent-aware transcription |
+| **LLM** | Groq Llama 3.3 70B | 300+ tok/s responses |
+| **TTS** | Cartesia Sonic / ElevenLabs / Edge TTS | Natural voice output |
 | **RAG** | FAISS + BM25 + Cross-Encoder | Hybrid semantic + keyword search |
 | **Voice** | LiveKit + Silero VAD | Real-time voice streaming |
-| **Telephony** | Twilio | SMS notifications & voice calls |
-| **Database** | SQLite | Call records & user sessions |
+| **Telephony** | Twilio | Outbound voice calls |
 
-## 🎓 Schemes Covered
+## 🌐 API Endpoints
 
-- **Scholarships**: PM Scholarship, Post Matric SC/ST/OBC, AICTE Pragati & Saksham, INSPIRE, NTSE
-- **Agriculture**: PM-KISAN, PM Fasal Bima Yojana
-- **Fisheries**: PMMSY, Blue Revolution
-- **MSME**: Mudra Loans, MSME Registration
-- **Disability**: IGNDPS, ADIP Scheme, National Trust schemes
-- **Women**: PM Kaushal Vikas Yojana, Mahila Shakti Kendra
-- **State-specific**: Maharashtra, UP, and more
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/search` | Search schemes by natural language query |
+| `POST` | `/text` | Send text, get AI text response |
+| `POST` | `/audio` | Send audio bytes, get voice response |
+| `POST` | `/audio/stream` | Streaming voice response (<500ms first chunk) |
+| `POST` | `/token` | Get LiveKit access token |
+| `GET`  | `/health` | Health check + scheme count |
+| `POST` | `/reset` | Reset conversation session |
 
-## 🖥️ Frontend Pages
+## 📞 Making a Phone Call
 
-| Page | Description |
-|------|-------------|
-| **Index** | Landing page with hero section |
-| **Dashboard** | User profile & scheme recommendations |
-| **Discover** | Browse & filter 50+ schemes with infinite scroll |
-| **VidyaHub** | Voice conversation interface with Vidya |
-| **Login/Signup** | User authentication |
+```bash
+cd backend
+source venv/bin/activate
+python -c "from make_call import make_call; make_call('+91XXXXXXXXXX')"
+```
 
-## 📞 Telephony Features
-
-- **SMS Notifications** - Scheme details sent via Twilio
-- **Voice Calls** - Phone-based assistance (Twilio voice)
-- **Call Records** - SQLite database for tracking
-
-## 🏆 Demo
-
-See [DEMO.md](docs/DEMO.md) for:
-- Demo conversations
-- Judging criteria alignment
-- Failure recovery strategies
-- Q&A preparation
+> Requires Twilio credentials in `.env` and ngrok running for the webhook.
 
 ## 📄 License
 
-MIT License - see LICENSE file for details.
+MIT License — see [LICENSE](LICENSE) for details.

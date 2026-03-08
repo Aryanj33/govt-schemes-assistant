@@ -33,9 +33,9 @@ RUN python3 -c "from sentence_transformers import SentenceTransformer, CrossEnco
 # Copy application code
 COPY --chown=user backend/ ./backend/
 COPY --chown=user config/ ./config/
-# Copy and reassemble split data chunks
-COPY --chown=user data.zip.part_* ./
-RUN cat data.zip.part_* > data.zip && unzip data.zip && rm data.zip.part_* data.zip
+# Copy and reassemble Base64 encoded data chunks
+COPY --chown=user data_part_*.txt ./
+RUN cat data_part_*.txt | base64 -d > data.zip && unzip data.zip && rm data_part_*.txt data.zip
 
 # Environment
 ENV PYTHONUNBUFFERED=1

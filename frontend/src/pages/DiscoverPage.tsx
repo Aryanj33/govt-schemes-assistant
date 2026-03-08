@@ -117,7 +117,8 @@ export default function DiscoverPage() {
         setLoading(true);
         setResults([]);
         try {
-            const res = await fetch("http://localhost:8080/search", {
+            const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+            const res = await fetch(`${API_URL}/search`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ query: q, limit: 12 }),

@@ -29,22 +29,8 @@ const STATE_CONFIG: Record<string, { color: string; glow: string; label: string;
     disconnected: { color: "#ef4444", glow: "rgba(239,68,68,0.3)", label: "Disconnected", sublabel: "Session ended", emoji: "📵", pulse: false },
 };
 
-/* ─── Ambient waveform decoration ─────────────────────────────────────── */
-function AmbientWave() {
-    const heights = [6, 12, 20, 14, 24, 10, 18, 8, 16, 22, 10, 14, 20, 8, 16, 12, 6];
-    return (
-        <div className="flex items-center justify-center gap-1 opacity-20">
-            {heights.map((h, i) => (
-                <motion.div
-                    key={i}
-                    style={{ width: 3, height: h, borderRadius: 4, background: "rgba(165,180,252,0.8)" }}
-                    animate={{ scaleY: [1, 2, 0.5, 1.5, 1], opacity: [0.4, 1, 0.3, 0.8, 0.4] }}
-                    transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.12, ease: "easeInOut" }}
-                />
-            ))}
-        </div>
-    );
-}
+
+
 
 /* ─── AI Voice Visualizer — the centrepiece ────────────────────────────── */
 const WAVE_BASE = [8, 14, 22, 30, 40, 28, 36, 20, 44, 26, 18, 38, 24, 42, 16, 32, 20, 40, 28, 36, 10, 24, 34, 18, 42, 22, 30, 16, 28, 12];

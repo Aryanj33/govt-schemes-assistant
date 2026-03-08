@@ -1,0 +1,22 @@
+# Python
+backend/venv/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.egg-info/
+
+# Environment secrets — never bundle in image
+backend/.env
+.env
+
+# Frontend (not needed in backend image)
+frontend/
+
+# Dev/test files
+backend/debug_faiss.py
+backend/test_elevenlabs.mp3
+backend/make_call.py
+
+# Git
+.git/
+.gitignore

@@ -1,32 +1,34 @@
-# Scholarship Voice Assistant - Backend Dockerfile
+# Sarkari Mitra — Backend Dockerfile
+# Deploys to Hugging Face Spaces (Docker) — port 7860
+
 FROM python:3.11-slim
 
-# Set working directory
-WORKDIR /app
-
-# Install system dependencies
+# System dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for caching
-COPY backend/requirements.txt .
+WORKDIR /app
 
-# Install Python dependencies
+# Install Python dependencies (cached layer)
+COPY backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY backend/ ./backend/
-COPY config/ ./config/
+
+# Copy FAISS index data (bundled into image — ~34MB)
 COPY data/ ./data/
 
-# Set environment variables
+# Environment
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app/backend
+# HF Spaces requires port 7860; Railway/local uses 8080 — both read from PORT env
+ENV PORT=7860
 
-# Expose port
-EXPOSE 8080
+# Expose HF Spaces port
+EXPOSE 7860
 
-# Run the application
+# Run
 CMD ["python", "backend/main.py"]

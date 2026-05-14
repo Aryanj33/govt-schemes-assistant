@@ -1,0 +1,1885 @@
+[
+  {
+    "id": "pm-scholarship-capf",
+    "name": "Prime Minister's Scholarship Scheme for CAPF/AR Personnel",
+    "description": "Financial assistance to wards and widows of CAPF and Assam Rifles personnel for professional degree courses.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "marks_criteria": 60,
+      "gender": "All"
+    },
+    "award_amount": "₹2,500-3,000/month",
+    "deadline": "31st October 2025",
+    "documents": [
+      "12th marksheet",
+      "Service certificate",
+      "Aadhaar card",
+      "Bank details"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "Merit",
+      "Defense"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Engineering",
+      "Medical",
+      "MBA",
+      "Law"
+    ]
+  },
+  {
+    "id": "nsp-post-matric-sc",
+    "name": "Post Matric Scholarship for SC Students",
+    "description": "Full tuition fee and maintenance allowance for SC students pursuing post-matric education.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC",
+      "income_limit": 250000
+    },
+    "award_amount": "₹5,000-25,000/year",
+    "deadline": "31st December 2025",
+    "documents": [
+      "Caste certificate",
+      "Income certificate",
+      "Marksheet",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "SC",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "nsp-post-matric-st",
+    "name": "Post Matric Scholarship for ST Students",
+    "description": "Financial support for ST students for education beyond class 10.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "ST",
+      "income_limit": 250000
+    },
+    "award_amount": "₹5,000-25,000/year",
+    "deadline": "31st December 2025",
+    "documents": [
+      "Tribe certificate",
+      "Income certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "ST",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "nsp-post-matric-obc",
+    "name": "Post Matric Scholarship for OBC Students",
+    "description": "Support for OBC students in post-matric studies with maintenance allowance.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "OBC",
+      "income_limit": 150000
+    },
+    "award_amount": "₹3,000-15,000/year",
+    "deadline": "31st December 2025",
+    "documents": [
+      "OBC certificate",
+      "Income certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "central-sector-scheme",
+    "name": "Central Sector Scheme of Scholarship for College Students",
+    "description": "Merit-based scholarship for top 80th percentile students in 12th boards.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "marks_criteria": 80,
+      "income_limit": 800000
+    },
+    "award_amount": "₹12,000-20,000/year",
+    "deadline": "31st October 2025",
+    "documents": [
+      "12th marksheet",
+      "Income certificate",
+      "Bank details"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "Merit",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "All Undergraduate Courses"
+    ]
+  },
+  {
+    "id": "aicte-pragati",
+    "name": "AICTE Pragati Scholarship for Girls",
+    "description": "Encourages girl students to pursue technical education with tuition fee and incidentals.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "gender": "Female",
+      "income_limit": 800000
+    },
+    "award_amount": "₹50,000/year",
+    "deadline": "31st December 2025",
+    "documents": [
+      "12th marksheet",
+      "Admission letter",
+      "Income certificate"
+    ],
+    "application_link": "https://www.aicte-india.org/schemes/students-development-schemes/pragati",
+    "category": [
+      "Female",
+      "Merit"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Engineering",
+      "Polytechnic"
+    ]
+  },
+  {
+    "id": "aicte-saksham",
+    "name": "AICTE Saksham Scholarship for Differently Abled",
+    "description": "Support for specially-abled students in AICTE approved institutions.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "disability": true,
+      "income_limit": 800000
+    },
+    "award_amount": "₹50,000/year",
+    "deadline": "31st December 2025",
+    "documents": [
+      "Disability certificate",
+      "12th marksheet",
+      "Income certificate"
+    ],
+    "application_link": "https://www.aicte-india.org/schemes/students-development-schemes/Saksham",
+    "category": [
+      "Disability"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Engineering",
+      "Management"
+    ]
+  },
+  {
+    "id": "inspire-scholarship",
+    "name": "INSPIRE Scholarship for Higher Education",
+    "description": "Ministry of Science & Technology scholarship for top science students.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "marks_criteria": 85
+    },
+    "award_amount": "₹80,000/year",
+    "deadline": "31st October 2025",
+    "documents": [
+      "12th marksheet (Science)",
+      "JEE/NEET rank if applicable"
+    ],
+    "application_link": "https://online-inspire.gov.in/",
+    "category": [
+      "Merit",
+      "Science"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "BSc",
+      "BS",
+      "Integrated MSc"
+    ]
+  },
+  {
+    "id": "ntse-scholarship",
+    "name": "National Talent Search Examination (NTSE) Scholarship",
+    "description": "Prestigious scholarship for meritorious students through national exam.",
+    "eligibility": {
+      "education_level": "Class 10",
+      "category": "All"
+    },
+    "award_amount": "₹1,250-2,000/month",
+    "deadline": "September 2025",
+    "documents": [
+      "NTSE scorecard",
+      "School certificate"
+    ],
+    "application_link": "https://ncert.nic.in/",
+    "category": [
+      "Merit"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Science",
+      "Engineering",
+      "Medical"
+    ]
+  },
+  {
+    "id": "minority-pre-matric",
+    "name": "Pre-Matric Scholarship for Minorities",
+    "description": "Financial support for minority students from class 1 to 10.",
+    "eligibility": {
+      "education_level": "Class 1-10",
+      "category": "Minority",
+      "income_limit": 100000
+    },
+    "award_amount": "₹1,000-6,000/year",
+    "deadline": "30th September 2025",
+    "documents": [
+      "Minority certificate",
+      "Income certificate",
+      "School certificate"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "Minority",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "School Education"
+    ]
+  },
+  {
+    "id": "minority-post-matric",
+    "name": "Post-Matric Scholarship for Minorities",
+    "description": "Support for minority community students for higher education.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "Minority",
+      "income_limit": 200000
+    },
+    "award_amount": "₹5,000-15,000/year",
+    "deadline": "31st December 2025",
+    "documents": [
+      "Minority certificate",
+      "Income certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "Minority",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "moma-merit-cum-means",
+    "name": "Merit-cum-Means Scholarship for Minorities",
+    "description": "Ministry of Minority Affairs scholarship for professional courses.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "Minority",
+      "marks_criteria": 50,
+      "income_limit": 250000
+    },
+    "award_amount": "₹20,000-50,000/year",
+    "deadline": "31st October 2025",
+    "documents": [
+      "Minority certificate",
+      "Admission letter",
+      "Income certificate"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "Minority",
+      "Merit"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Engineering",
+      "Medical",
+      "MBA",
+      "Law"
+    ]
+  },
+  {
+    "id": "maharashtra-freeship",
+    "name": "Maharashtra State Freeship for Open Category",
+    "description": "Maharashtra government freeship for economically weaker open category students.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "General",
+      "state": "Maharashtra",
+      "income_limit": 800000
+    },
+    "award_amount": "Full tuition fee waiver",
+    "deadline": "October 2025",
+    "documents": [
+      "Domicile certificate",
+      "Income certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://mahadbt.maharashtra.gov.in/",
+    "category": [
+      "General",
+      "Need-based"
+    ],
+    "applicable_regions": "Maharashtra",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "maharashtra-sc-st-vjnt",
+    "name": "Maharashtra SC/ST/VJNT Scholarship",
+    "description": "Full scholarship for SC/ST/VJNT/SBC category students of Maharashtra.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST/VJNT",
+      "state": "Maharashtra"
+    },
+    "award_amount": "100% tuition + maintenance",
+    "deadline": "December 2025",
+    "documents": [
+      "Caste certificate",
+      "Domicile",
+      "Marksheet"
+    ],
+    "application_link": "https://mahadbt.maharashtra.gov.in/",
+    "category": [
+      "SC",
+      "ST",
+      "Need-based"
+    ],
+    "applicable_regions": "Maharashtra",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "up-post-matric-sc",
+    "name": "Uttar Pradesh Post Matric Scholarship for SC/ST",
+    "description": "UP government scholarship for SC/ST students pursuing higher education.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Uttar Pradesh",
+      "income_limit": 250000
+    },
+    "award_amount": "₹5,000-15,000/year",
+    "deadline": "January 2026",
+    "documents": [
+      "Caste certificate",
+      "Income certificate",
+      "UP domicile"
+    ],
+    "application_link": "https://scholarship.up.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Uttar Pradesh",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "up-obc-scholarship",
+    "name": "Uttar Pradesh OBC Scholarship",
+    "description": "Financial support for OBC students of Uttar Pradesh.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "OBC",
+      "state": "Uttar Pradesh",
+      "income_limit": 150000
+    },
+    "award_amount": "₹3,000-10,000/year",
+    "deadline": "January 2026",
+    "documents": [
+      "OBC certificate",
+      "Income certificate",
+      "UP domicile"
+    ],
+    "application_link": "https://scholarship.up.gov.in/",
+    "category": [
+      "OBC"
+    ],
+    "applicable_regions": "Uttar Pradesh",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "karnataka-post-matric-sc",
+    "name": "Karnataka Post Matric Scholarship for SC/ST",
+    "description": "Karnataka state scholarship for SC/ST students in higher education.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Karnataka"
+    },
+    "award_amount": "₹5,000-20,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "Karnataka domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://ssp.karnataka.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Karnataka",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "karnataka-obc-scholarship",
+    "name": "Karnataka OBC Scholarship",
+    "description": "Support for OBC category students from Karnataka.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "OBC",
+      "state": "Karnataka",
+      "income_limit": 200000
+    },
+    "award_amount": "₹3,000-12,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "OBC certificate",
+      "Income certificate",
+      "Karnataka domicile"
+    ],
+    "application_link": "https://ssp.karnataka.gov.in/",
+    "category": [
+      "OBC"
+    ],
+    "applicable_regions": "Karnataka",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "tamil-nadu-bc-mbc",
+    "name": "Tamil Nadu BC/MBC Scholarship",
+    "description": "Scholarship for Backward Class and Most Backward Class students of TN.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "BC/MBC",
+      "state": "Tamil Nadu",
+      "income_limit": 250000
+    },
+    "award_amount": "₹4,000-15,000/year",
+    "deadline": "November 2025",
+    "documents": [
+      "Community certificate",
+      "Income certificate",
+      "TN domicile"
+    ],
+    "application_link": "https://tnscholarship.gov.in/",
+    "category": [
+      "OBC",
+      "BC"
+    ],
+    "applicable_regions": "Tamil Nadu",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "tamil-nadu-sc-st",
+    "name": "Tamil Nadu SC/ST Scholarship",
+    "description": "Full scholarship for SC/ST students of Tamil Nadu.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Tamil Nadu"
+    },
+    "award_amount": "100% fees + maintenance",
+    "deadline": "November 2025",
+    "documents": [
+      "Community certificate",
+      "TN domicile",
+      "Marksheet"
+    ],
+    "application_link": "https://tnscholarship.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Tamil Nadu",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "rajasthan-cm-scholarship",
+    "name": "Rajasthan Mukhyamantri Scholarship",
+    "description": "Chief Minister scholarship for meritorious students of Rajasthan.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "state": "Rajasthan",
+      "marks_criteria": 60
+    },
+    "award_amount": "₹5,000-15,000/year",
+    "deadline": "September 2025",
+    "documents": [
+      "Rajasthan domicile",
+      "12th marksheet",
+      "Bank details"
+    ],
+    "application_link": "https://sje.rajasthan.gov.in/",
+    "category": [
+      "Merit"
+    ],
+    "applicable_regions": "Rajasthan",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "rajasthan-sc-st-scholarship",
+    "name": "Rajasthan SC/ST Post Matric Scholarship",
+    "description": "Financial support for SC/ST students of Rajasthan.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Rajasthan",
+      "income_limit": 250000
+    },
+    "award_amount": "₹5,000-20,000/year",
+    "deadline": "December 2025",
+    "documents": [
+      "Caste certificate",
+      "Income certificate",
+      "Domicile"
+    ],
+    "application_link": "https://sje.rajasthan.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Rajasthan",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "gujarat-sc-st-scholarship",
+    "name": "Gujarat SC/ST Scholarship",
+    "description": "Gujarat government scholarship for scheduled categories.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Gujarat"
+    },
+    "award_amount": "₹5,000-18,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "Gujarat domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://digitalgujarat.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Gujarat",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "gujarat-obc-scholarship",
+    "name": "Gujarat OBC/SEBC Scholarship",
+    "description": "Support for OBC/SEBC category students from Gujarat.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "OBC/SEBC",
+      "state": "Gujarat",
+      "income_limit": 250000
+    },
+    "award_amount": "₹3,000-12,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "OBC certificate",
+      "Income certificate",
+      "Gujarat domicile"
+    ],
+    "application_link": "https://digitalgujarat.gov.in/",
+    "category": [
+      "OBC"
+    ],
+    "applicable_regions": "Gujarat",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "mp-sc-st-scholarship",
+    "name": "Madhya Pradesh SC/ST Scholarship",
+    "description": "Financial assistance for SC/ST students of MP.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Madhya Pradesh"
+    },
+    "award_amount": "₹5,000-15,000/year",
+    "deadline": "November 2025",
+    "documents": [
+      "MP domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarshipportal.mp.nic.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Madhya Pradesh",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "mp-gaon-ki-beti",
+    "name": "Madhya Pradesh Gaon Ki Beti Yojana",
+    "description": "Scholarship for meritorious rural girls of Madhya Pradesh.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "gender": "Female",
+      "state": "Madhya Pradesh",
+      "marks_criteria": 60
+    },
+    "award_amount": "₹500/month",
+    "deadline": "December 2025",
+    "documents": [
+      "12th marksheet",
+      "Rural certificate",
+      "MP domicile"
+    ],
+    "application_link": "https://scholarshipportal.mp.nic.in/",
+    "category": [
+      "Female",
+      "Rural"
+    ],
+    "applicable_regions": "Madhya Pradesh",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "west-bengal-kanyashree",
+    "name": "West Bengal Kanyashree Prakalpa",
+    "description": "Flagship scheme for girl students of West Bengal.",
+    "eligibility": {
+      "education_level": "Class 8-12",
+      "category": "All",
+      "gender": "Female",
+      "state": "West Bengal",
+      "income_limit": 120000
+    },
+    "award_amount": "₹1,000/year + ₹25,000 one-time",
+    "deadline": "Continuous",
+    "documents": [
+      "School certificate",
+      "WB domicile",
+      "Income certificate"
+    ],
+    "application_link": "https://wbkanyashree.gov.in/",
+    "category": [
+      "Female",
+      "Need-based"
+    ],
+    "applicable_regions": "West Bengal",
+    "course_types": [
+      "School Education",
+      "Undergraduate"
+    ]
+  },
+  {
+    "id": "west-bengal-sc-st",
+    "name": "West Bengal SC/ST Scholarship",
+    "description": "Support for SC/ST students from West Bengal.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "West Bengal"
+    },
+    "award_amount": "₹5,000-15,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "WB domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://svmcm.wbhed.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "West Bengal",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "bihar-bc-ebc-scholarship",
+    "name": "Bihar BC/EBC Scholarship",
+    "description": "Scholarship for Backward Class and Extremely Backward Class of Bihar.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "BC/EBC",
+      "state": "Bihar",
+      "income_limit": 150000
+    },
+    "award_amount": "₹3,000-10,000/year",
+    "deadline": "November 2025",
+    "documents": [
+      "Bihar domicile",
+      "Caste certificate",
+      "Income certificate"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "BC"
+    ],
+    "applicable_regions": "Bihar",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "bihar-sc-st-scholarship",
+    "name": "Bihar SC/ST Post Matric Scholarship",
+    "description": "Full support for SC/ST students of Bihar.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Bihar"
+    },
+    "award_amount": "100% fees + maintenance",
+    "deadline": "November 2025",
+    "documents": [
+      "Caste certificate",
+      "Bihar domicile",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Bihar",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "kerala-sc-st-scholarship",
+    "name": "Kerala SC/ST Scholarship",
+    "description": "Kerala government scholarship for scheduled categories.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Kerala"
+    },
+    "award_amount": "₹5,000-18,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "Kerala domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://dcescholarship.kerala.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Kerala",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "kerala-obc-scholarship",
+    "name": "Kerala OBC Scholarship",
+    "description": "Support for OBC category students from Kerala.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "OBC",
+      "state": "Kerala",
+      "income_limit": 200000
+    },
+    "award_amount": "₹3,000-12,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "OBC certificate",
+      "Income certificate",
+      "Kerala domicile"
+    ],
+    "application_link": "https://dcescholarship.kerala.gov.in/",
+    "category": [
+      "OBC"
+    ],
+    "applicable_regions": "Kerala",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "andhra-pradesh-sc-st",
+    "name": "Andhra Pradesh SC/ST Scholarship",
+    "description": "AP government scholarship for SC/ST students.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Andhra Pradesh"
+    },
+    "award_amount": "₹5,000-20,000/year",
+    "deadline": "November 2025",
+    "documents": [
+      "AP domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://jnanabhumi.ap.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Andhra Pradesh",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "telangana-sc-st",
+    "name": "Telangana SC/ST Scholarship",
+    "description": "Telangana state scholarship for scheduled categories.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Telangana"
+    },
+    "award_amount": "₹5,000-18,000/year",
+    "deadline": "November 2025",
+    "documents": [
+      "Telangana domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://telanganaepass.cgg.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Telangana",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "telangana-ebc",
+    "name": "Telangana EBC Scholarship",
+    "description": "Support for Economically Backward Class students of Telangana.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "EBC",
+      "state": "Telangana",
+      "income_limit": 150000
+    },
+    "award_amount": "₹3,000-10,000/year",
+    "deadline": "November 2025",
+    "documents": [
+      "EBC certificate",
+      "Income certificate",
+      "Telangana domicile"
+    ],
+    "application_link": "https://telanganaepass.cgg.gov.in/",
+    "category": [
+      "OBC",
+      "Need-based"
+    ],
+    "applicable_regions": "Telangana",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "punjab-sc-scholarship",
+    "name": "Punjab SC Post Matric Scholarship",
+    "description": "Financial support for SC students of Punjab.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC",
+      "state": "Punjab"
+    },
+    "award_amount": "₹5,000-15,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "Punjab domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "SC"
+    ],
+    "applicable_regions": "Punjab",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "haryana-sc-scholarship",
+    "name": "Haryana SC Post Matric Scholarship",
+    "description": "Scholarship for SC students from Haryana.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC",
+      "state": "Haryana",
+      "income_limit": 250000
+    },
+    "award_amount": "₹5,000-15,000/year",
+    "deadline": "September 2025",
+    "documents": [
+      "Haryana domicile",
+      "Caste certificate",
+      "Income certificate"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "SC"
+    ],
+    "applicable_regions": "Haryana",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "odisha-prerana",
+    "name": "Odisha Prerana Scholarship",
+    "description": "State merit scholarship for students of Odisha.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "state": "Odisha",
+      "marks_criteria": 60
+    },
+    "award_amount": "₹5,000-15,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "Odisha domicile",
+      "12th marksheet",
+      "Bank details"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "Merit"
+    ],
+    "applicable_regions": "Odisha",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "odisha-sc-st",
+    "name": "Odisha SC/ST Post Matric Scholarship",
+    "description": "Support for SC/ST students of Odisha.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Odisha"
+    },
+    "award_amount": "₹5,000-18,000/year",
+    "deadline": "November 2025",
+    "documents": [
+      "Odisha domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Odisha",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "jharkhand-sc-st",
+    "name": "Jharkhand SC/ST Scholarship",
+    "description": "Financial aid for SC/ST students of Jharkhand.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Jharkhand"
+    },
+    "award_amount": "₹5,000-15,000/year",
+    "deadline": "November 2025",
+    "documents": [
+      "Jharkhand domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Jharkhand",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "chhattisgarh-sc-st",
+    "name": "Chhattisgarh SC/ST Scholarship",
+    "description": "Support for SC/ST students from Chhattisgarh state.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Chhattisgarh"
+    },
+    "award_amount": "₹5,000-15,000/year",
+    "deadline": "November 2025",
+    "documents": [
+      "CG domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Chhattisgarh",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "assam-sc-st",
+    "name": "Assam SC/ST Scholarship",
+    "description": "North East scholarship for SC/ST students of Assam.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Assam"
+    },
+    "award_amount": "₹5,000-18,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "Assam domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Assam",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "delhi-sc-st",
+    "name": "Delhi SC/ST Post Matric Scholarship",
+    "description": "Delhi government scholarship for SC/ST students.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "SC/ST",
+      "state": "Delhi"
+    },
+    "award_amount": "₹5,000-20,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "Delhi domicile",
+      "Caste certificate",
+      "Marksheet"
+    ],
+    "application_link": "https://edistrict.delhigovt.nic.in/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "Delhi",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "tata-trusts-scholarship",
+    "name": "Tata Trusts Scholarship",
+    "description": "Private scholarship by Tata Trusts for meritorious students.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "marks_criteria": 60,
+      "income_limit": 400000
+    },
+    "award_amount": "₹50,000-75,000/year",
+    "deadline": "Continuous",
+    "documents": [
+      "12th marksheet",
+      "Income certificate",
+      "Admission letter"
+    ],
+    "application_link": "https://www.tatatrusts.org/",
+    "category": [
+      "Merit",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Engineering",
+      "Medical",
+      "Management"
+    ]
+  },
+  {
+    "id": "reliance-foundation",
+    "name": "Reliance Foundation Scholarship",
+    "description": "Support for undergraduate students from Reliance Foundation.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "marks_criteria": 60,
+      "income_limit": 800000
+    },
+    "award_amount": "₹2,00,000 over course duration",
+    "deadline": "Varies",
+    "documents": [
+      "12th marksheet",
+      "Income certificate",
+      "Admission proof"
+    ],
+    "application_link": "https://www.reliancefoundation.org/",
+    "category": [
+      "Merit",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Engineering",
+      "Science",
+      "Arts"
+    ]
+  },
+  {
+    "id": "hdfc-scholarship",
+    "name": "HDFC Educational Crisis Scholarship",
+    "description": "For students facing sudden financial crisis.",
+    "eligibility": {
+      "education_level": "All",
+      "category": "All",
+      "crisis": true
+    },
+    "award_amount": "Up to full tuition",
+    "deadline": "Continuous",
+    "documents": [
+      "Crisis documentation",
+      "Fee structure",
+      "Income proof"
+    ],
+    "application_link": "https://www.buddy4study.com/hdfc-bank",
+    "category": [
+      "Need-based",
+      "Emergency"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "iocl-scholarship",
+    "name": "Indian Oil Academic Scholarship",
+    "description": "IOCL scholarship for engineering and MBA students.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "SC/ST/OBC",
+      "marks_criteria": 65,
+      "income_limit": 300000
+    },
+    "award_amount": "₹48,000/year (Engineering), ₹60,000/year (MBA)",
+    "deadline": "October 2025",
+    "documents": [
+      "JEE/CAT rank",
+      "Category certificate",
+      "Income certificate"
+    ],
+    "application_link": "https://www.iocl.com/",
+    "category": [
+      "SC",
+      "ST",
+      "OBC",
+      "Merit"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Engineering",
+      "MBA"
+    ]
+  },
+  {
+    "id": "google-generation",
+    "name": "Google Generation Scholarship",
+    "description": "For students pursuing computer science excellence.",
+    "eligibility": {
+      "education_level": "Undergraduate",
+      "category": "All",
+      "gender": "Female preferred"
+    },
+    "award_amount": "$1,000 USD",
+    "deadline": "April 2025",
+    "documents": [
+      "Academic transcripts",
+      "Resume",
+      "Essays"
+    ],
+    "application_link": "https://buildyourfuture.withgoogle.com/",
+    "category": [
+      "Merit",
+      "Female",
+      "Tech"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Computer Science",
+      "Engineering"
+    ]
+  },
+  {
+    "id": "fair-lovely-career-foundation",
+    "name": "Fair & Lovely Career Foundation Scholarship",
+    "description": "Scholarship for women pursuing higher education.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "gender": "Female",
+      "income_limit": 600000
+    },
+    "award_amount": "Varies",
+    "deadline": "November 2025",
+    "documents": [
+      "12th marksheet",
+      "Income certificate",
+      "Admission letter"
+    ],
+    "application_link": "https://www.fairandlovelyfoundation.org/",
+    "category": [
+      "Female",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "All Professional Courses"
+    ]
+  },
+  {
+    "id": "kvpy-fellowship",
+    "name": "KVPY Fellowship (Kishore Vaigyanik Protsahan Yojana)",
+    "description": "Prestigious fellowship for science students by DST.",
+    "eligibility": {
+      "education_level": "Class 11-12, BSc",
+      "category": "All",
+      "marks_criteria": 75
+    },
+    "award_amount": "₹5,000-7,000/month + contingency",
+    "deadline": "July 2025",
+    "documents": [
+      "Board marksheet",
+      "KVPY aptitude test rank"
+    ],
+    "application_link": "http://kvpy.iisc.ernet.in/",
+    "category": [
+      "Merit",
+      "Science"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "BSc",
+      "BS",
+      "Integrated MSc"
+    ]
+  },
+  {
+    "id": "ongc-scholarship",
+    "name": "ONGC Scholarship for SC/ST Students",
+    "description": "Oil and Natural Gas Corporation scholarship.",
+    "eligibility": {
+      "education_level": "Undergraduate",
+      "category": "SC/ST",
+      "marks_criteria": 60
+    },
+    "award_amount": "₹48,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "12th marksheet",
+      "Caste certificate",
+      "Admission proof"
+    ],
+    "application_link": "https://www.ongcindia.com/",
+    "category": [
+      "SC",
+      "ST"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Engineering",
+      "MBA",
+      "Medical",
+      "Geosciences"
+    ]
+  },
+  {
+    "id": "north-east-scholarship",
+    "name": "North East Region Scholarship",
+    "description": "Special scholarship for students from North Eastern states.",
+    "eligibility": {
+      "education_level": "10th pass",
+      "category": "All",
+      "state": "North East"
+    },
+    "award_amount": "₹10,000-30,000/year",
+    "deadline": "October 2025",
+    "documents": [
+      "NE state domicile",
+      "Marksheet",
+      "Income certificate"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "Regional",
+      "Need-based"
+    ],
+    "applicable_regions": "Assam, Meghalaya, Manipur, Tripura, Mizoram, Arunachal Pradesh, Nagaland, Sikkim",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "begum-hazrat-mahal",
+    "name": "Begum Hazrat Mahal National Scholarship for Minorities",
+    "description": "Scholarship for meritorious minority girl students.",
+    "eligibility": {
+      "education_level": "Class 9-12",
+      "category": "Minority",
+      "gender": "Female",
+      "marks_criteria": 50,
+      "income_limit": 200000
+    },
+    "award_amount": "₹6,000-12,000/year",
+    "deadline": "September 2025",
+    "documents": [
+      "Minority certificate",
+      "Marksheet",
+      "Income certificate"
+    ],
+    "application_link": "https://maef.nic.in/",
+    "category": [
+      "Minority",
+      "Female"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "School Education"
+    ]
+  },
+  {
+    "id": "swanath-scholarship",
+    "name": "Swanath Scholarship for Orphans",
+    "description": "AICTE scholarship for orphan students in technical education.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "Orphan",
+      "income_limit": 800000
+    },
+    "award_amount": "₹50,000/year",
+    "deadline": "December 2025",
+    "documents": [
+      "Orphan certificate",
+      "12th marksheet",
+      "Admission letter"
+    ],
+    "application_link": "https://www.aicte-india.org/",
+    "category": [
+      "Orphan",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Engineering",
+      "Management",
+      "Pharmacy"
+    ]
+  },
+  {
+    "id": "ishan-uday-ne",
+    "name": "Ishan Uday for North Eastern Region",
+    "description": "Special scholarship for NE region students studying outside NE.",
+    "eligibility": {
+      "education_level": "12th pass",
+      "category": "All",
+      "state": "North East"
+    },
+    "award_amount": "₹5,400/month + incidentals",
+    "deadline": "October 2025",
+    "documents": [
+      "12th marksheet",
+      "NE domicile",
+      "Admission in non-NE college"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "Regional"
+    ],
+    "applicable_regions": "North Eastern States",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "kishore-vaigyanik",
+    "name": "Kishore Vaigyanik Protsahan Yojana",
+    "description": "Fellowship for students with aptitude for research.",
+    "eligibility": {
+      "education_level": "Class 11 to BSc",
+      "category": "All",
+      "marks_criteria": 80
+    },
+    "award_amount": "₹5,000-7,000/month",
+    "deadline": "August 2025",
+    "documents": [
+      "KVPY admit card",
+      "Board marksheet"
+    ],
+    "application_link": "http://kvpy.iisc.ernet.in/",
+    "category": [
+      "Merit",
+      "Research"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Science",
+      "Research"
+    ]
+  },
+  {
+    "id": "single-girl-child",
+    "name": "CBSE Single Girl Child Merit Scholarship",
+    "description": "For girl who is only child of parents and scored well in CBSE.",
+    "eligibility": {
+      "education_level": "Class 10",
+      "category": "All",
+      "gender": "Female",
+      "marks_criteria": 60
+    },
+    "award_amount": "₹500/month for 2 years",
+    "deadline": "September 2025",
+    "documents": [
+      "Affidavit of single girl child",
+      "CBSE marksheet"
+    ],
+    "application_link": "https://www.cbse.gov.in/",
+    "category": [
+      "Female",
+      "Merit"
+    ],
+    "applicable_regions": "All India (CBSE students)",
+    "course_types": [
+      "Class 11-12"
+    ]
+  },
+  {
+    "id": "sports-scholarship-sai",
+    "name": "Sports Authority of India Scholarship",
+    "description": "For talented sportspersons pursuing education.",
+    "eligibility": {
+      "education_level": "All",
+      "category": "All",
+      "sports": "State/National level"
+    },
+    "award_amount": "₹500-3,000/month",
+    "deadline": "Continuous",
+    "documents": [
+      "Sports certificate",
+      "Medal proof",
+      "Fee receipt"
+    ],
+    "application_link": "https://sportsauthorityofindia.nic.in/",
+    "category": [
+      "Sports"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "farmer-welfare-scholarship",
+    "name": "Farmer Welfare Scholarship",
+    "description": "Scholarship for children of farmers.",
+    "eligibility": {
+      "education_level": "All",
+      "category": "All",
+      "parent_occupation": "Farmer"
+    },
+    "award_amount": "Varies by state",
+    "deadline": "Varies",
+    "documents": [
+      "Land ownership proof or Kisan ID",
+      "Marksheet"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "Farmer",
+      "Need-based"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "All Courses"
+    ]
+  },
+  {
+    "id": "inspire-scholarship-2022-23-scholarship--b35722",
+    "name": "INSPIRE Scholarship 2022-23 - Scholarship for Higher Education (SHE)",
+    "description": "Scholarship for eligible students. Eligibility based on education, community, and income criteria.",
+    "eligibility": {
+      "education_level": "Undergraduate",
+      "category": "OBC, SC/ST, Minority",
+      "gender": "All",
+      "income_limit": "Upto 1.5L, 1.5L to 3L, 3L to 6L",
+      "marks_criteria": "90-100"
+    },
+    "award_amount": "Varies - Check official website",
+    "deadline": "Check official website",
+    "documents": [
+      "Marksheet",
+      "Income certificate",
+      "Category certificate",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "SC/ST",
+      "Minority"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Undergraduate"
+    ]
+  },
+  {
+    "id": "abdul-kalam-technology-innovation-nation-590daf",
+    "name": "Abdul Kalam Technology Innovation National Fellowship",
+    "description": "Scholarship for eligible students. Eligibility based on education, community, and income criteria.",
+    "eligibility": {
+      "education_level": "Postgraduate, Doctrate",
+      "category": "OBC, SC/ST, Minority",
+      "gender": "All",
+      "income_limit": "Upto 1.5L, 1.5L to 3L, 3L to 6L",
+      "marks_criteria": "90-100, 80-90, 70-80"
+    },
+    "award_amount": "Varies - Check official website",
+    "deadline": "Check official website",
+    "documents": [
+      "Marksheet",
+      "Income certificate",
+      "Category certificate",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "SC/ST",
+      "Minority"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Postgraduate",
+      "Doctrate"
+    ]
+  },
+  {
+    "id": "aai-sports-scholarship-scheme-in-india-2-6f7c9b",
+    "name": "AAI Sports Scholarship Scheme in India 2022-23",
+    "description": "Scholarship for eligible students. Eligibility based on education, community, and income criteria.",
+    "eligibility": {
+      "education_level": "Undergraduate, Postgraduate",
+      "category": "OBC, SC/ST, Minority",
+      "gender": "All",
+      "income_limit": "Upto 1.5L, 1.5L to 3L, 3L to 6L",
+      "marks_criteria": "90-100, 80-90, 70-80"
+    },
+    "award_amount": "Varies - Check official website",
+    "deadline": "Check official website",
+    "documents": [
+      "Marksheet",
+      "Income certificate",
+      "Category certificate",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "SC/ST",
+      "Minority"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Undergraduate",
+      "Postgraduate"
+    ]
+  },
+  {
+    "id": "glow-and-lovely-career-foundation-schola-f787a4",
+    "name": "Glow and lovely Career Foundation Scholarship",
+    "description": "Scholarship for eligible students. Eligibility based on education, community, and income criteria.",
+    "eligibility": {
+      "education_level": "Undergraduate, Postgraduate",
+      "category": "OBC, SC/ST, Minority",
+      "gender": "Female",
+      "income_limit": "Upto 1.5L, 1.5L to 3L, 3L to 6L",
+      "marks_criteria": "90-100, 80-90, 70-80"
+    },
+    "award_amount": "Varies - Check official website",
+    "deadline": "Check official website",
+    "documents": [
+      "Marksheet",
+      "Income certificate",
+      "Category certificate",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "SC/ST",
+      "Minority"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Undergraduate",
+      "Postgraduate"
+    ]
+  },
+  {
+    "id": "national-fellowship-for-persons-with-dis-40ff68",
+    "name": "National Fellowship for Persons with Disabilities",
+    "description": "Scholarship for eligible students. Eligibility based on education, community, and income criteria.",
+    "eligibility": {
+      "education_level": "Postgraduate, Doctrate",
+      "category": "OBC, SC/ST, Minority",
+      "gender": "All",
+      "income_limit": "Upto 1.5L, 1.5L to 3L, 3L to 6L",
+      "marks_criteria": "90-100, 80-90, 70-80"
+    },
+    "award_amount": "Varies - Check official website",
+    "deadline": "Check official website",
+    "documents": [
+      "Marksheet",
+      "Income certificate",
+      "Category certificate",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "SC/ST",
+      "Minority"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Postgraduate",
+      "Doctrate"
+    ]
+  },
+  {
+    "id": "ongc-sports-scholarship-scheme-2022-23-af8418",
+    "name": "ONGC Sports Scholarship Scheme 2022-23",
+    "description": "Scholarship for eligible students. Eligibility based on education, community, and income criteria.",
+    "eligibility": {
+      "education_level": "Undergraduate, Postgraduate",
+      "category": "OBC, SC/ST, Minority",
+      "gender": "All",
+      "income_limit": "Upto 1.5L, 1.5L to 3L, 3L to 6L",
+      "marks_criteria": "90-100, 80-90, 70-80"
+    },
+    "award_amount": "Varies - Check official website",
+    "deadline": "Check official website",
+    "documents": [
+      "Marksheet",
+      "Income certificate",
+      "Category certificate",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "SC/ST",
+      "Minority"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Undergraduate",
+      "Postgraduate"
+    ]
+  },
+  {
+    "id": "pragati-scholarship-aicte-scholarship-sc-b2f5d9",
+    "name": "Pragati Scholarship - AICTE-Scholarship Scheme to Girl Child",
+    "description": "Scholarship for eligible students. Eligibility based on education, community, and income criteria.",
+    "eligibility": {
+      "education_level": "Undergraduate",
+      "category": "OBC, SC/ST, Minority",
+      "gender": "Female",
+      "income_limit": "Upto 1.5L, 1.5L to 3L, 3L to 6L",
+      "marks_criteria": "90-100"
+    },
+    "award_amount": "Varies - Check official website",
+    "deadline": "Check official website",
+    "documents": [
+      "Marksheet",
+      "Income certificate",
+      "Category certificate",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "SC/ST",
+      "Minority"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Undergraduate"
+    ]
+  },
+  {
+    "id": "dr-ambedkar-post-matric-scholarship-5e689b",
+    "name": "Dr. Ambedkar post matric Scholarship",
+    "description": "Scholarship for eligible students. Eligibility based on education, community, and income criteria.",
+    "eligibility": {
+      "education_level": "Undergraduate, Postgraduate",
+      "category": "OBC, SC/ST, Minority",
+      "gender": "All",
+      "income_limit": "Upto 1.5L",
+      "marks_criteria": "90-100, 80-90, 70-80"
+    },
+    "award_amount": "Varies - Check official website",
+    "deadline": "Check official website",
+    "documents": [
+      "Marksheet",
+      "Income certificate",
+      "Category certificate",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "SC/ST",
+      "Minority"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Undergraduate",
+      "Postgraduate"
+    ]
+  },
+  {
+    "id": "indira-gandhi-scholarship-for-single-gir-7c2c13",
+    "name": "Indira Gandhi Scholarship for Single Girl Child UGC Scholarship for PG Programmes",
+    "description": "Scholarship for eligible students. Eligibility based on education, community, and income criteria.",
+    "eligibility": {
+      "education_level": "Postgraduate",
+      "category": "OBC, SC/ST, Minority",
+      "gender": "Female",
+      "income_limit": "Upto 1.5L, 1.5L to 3L, 3L to 6L",
+      "marks_criteria": "90-100, 80-90, 70-80"
+    },
+    "award_amount": "Varies - Check official website",
+    "deadline": "Check official website",
+    "documents": [
+      "Marksheet",
+      "Income certificate",
+      "Category certificate",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "OBC",
+      "SC/ST",
+      "Minority"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Postgraduate"
+    ]
+  },
+  {
+    "id": "national-overseas-scholarship-scheme-202-cdf794",
+    "name": "National Overseas Scholarship Scheme 2021-22",
+    "description": "Scholarship for eligible students. Eligibility based on education, community, and income criteria.",
+    "eligibility": {
+      "education_level": "Postgraduate, Doctrate",
+      "category": "SC/ST, Minority",
+      "gender": "All",
+      "income_limit": "Upto 1.5L, 1.5L to 3L, 3L to 6L",
+      "marks_criteria": "90-100, 80-90, 70-80"
+    },
+    "award_amount": "Varies - Check official website",
+    "deadline": "Check official website",
+    "documents": [
+      "Marksheet",
+      "Income certificate",
+      "Category certificate",
+      "Aadhaar"
+    ],
+    "application_link": "https://scholarships.gov.in/",
+    "category": [
+      "SC/ST",
+      "Minority"
+    ],
+    "applicable_regions": "All India",
+    "course_types": [
+      "Postgraduate",
+      "Doctrate"
+    ]
+  }
+]

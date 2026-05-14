@@ -1,0 +1,28 @@
+build:
+  - pip install -r backend/requirements.txt
+
+envVars:
+  - key: GROQ_API_KEY
+    sync: false
+  - key: GOOGLE_API_KEY
+    sync: false
+  - key: LIVEKIT_URL
+    sync: false
+  - key: LIVEKIT_API_KEY
+    sync: false
+  - key: LIVEKIT_API_SECRET
+    sync: false
+  - key: PORT
+    value: 8080
+
+services:
+  - type: web
+    name: govt-schemes-assistant
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && python main.py
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
